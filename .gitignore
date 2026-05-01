@@ -1,0 +1,29 @@
+# 의존성 — 새 PC에서 npm install로 재생성
+node_modules/
+
+# Next.js 빌드 캐시 — 새 PC에서 npm run build로 재생성
+.next/
+out/
+
+# 환경변수 (GPT API 키 등 — 새 PC에 직접 생성)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 로그
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS 파일
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 에디터
+.vscode/
+.idea/
+*.swp
+*.swo
