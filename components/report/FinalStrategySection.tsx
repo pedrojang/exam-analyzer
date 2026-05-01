@@ -2,16 +2,25 @@
 import React from "react";
 import { CheckCircle2, ArrowRight, BookMarked } from "lucide-react";
 import type { ExamAnalysis } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
 const STRATEGY_COLORS = ["#0B1F4D", "#F97316", "#3B82F6", "#22C55E", "#A855F7"];
 
-export default function FinalStrategySection({ analysis }: Props) {
+export default function FinalStrategySection({ analysis, onUpdate }: Props) {
   const topUnit = analysis.unitDistribution[0];
   const killerNums = analysis.killerSummary.killerQuestionNumbers;
+
+  const updateStrategy = (idx: number, val: string) => {
+    if (!onUpdate) return;
+    const next = [...analysis.finalStrategy];
+    next[idx] = val;
+    onUpdate({ ...analysis, finalStrategy: next });
+  };
 
   return (
     <div className="space-y-6">
@@ -47,7 +56,12 @@ export default function FinalStrategySection({ analysis }: Props) {
             <div className="flex-1">
               <div className="flex items-start gap-2">
                 <ArrowRight className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: STRATEGY_COLORS[i % STRATEGY_COLORS.length] }} />
-                <p className="text-sm text-gray-800 leading-relaxed font-medium">{strategy}</p>
+                <EditableText
+                  value={strategy}
+                  onChange={(val) => updateStrategy(i, val)}
+                  multiline
+                  className="text-sm text-gray-800 leading-relaxed font-medium"
+                />
               </div>
             </div>
             <CheckCircle2 className="h-5 w-5 text-gray-200 flex-shrink-0 mt-0.5" />

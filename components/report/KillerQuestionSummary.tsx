@@ -3,12 +3,14 @@ import React from "react";
 import { AlertTriangle, Target } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import type { ExamAnalysis } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
-export default function KillerQuestionSummary({ analysis }: Props) {
+export default function KillerQuestionSummary({ analysis, onUpdate }: Props) {
   const { killerSummary } = analysis;
   const pct = ((killerSummary.totalKillerScore / analysis.totalScore) * 100).toFixed(1);
 
@@ -63,7 +65,12 @@ export default function KillerQuestionSummary({ analysis }: Props) {
         <div className="bg-red-50 px-6 py-5">
           <div className="flex gap-3">
             <Target className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-800 leading-relaxed font-medium">{killerSummary.message}</p>
+            <EditableText
+              value={killerSummary.message}
+              onChange={(val) => onUpdate?.({ ...analysis, killerSummary: { ...killerSummary, message: val } })}
+              multiline
+              className="text-sm text-red-800 leading-relaxed font-medium"
+            />
           </div>
         </div>
       </div>

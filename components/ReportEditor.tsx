@@ -152,16 +152,16 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
   const renderSectionContent = (section: ReportSection) => {
     switch (section.type as SectionType) {
       case "hero": return <ReportHero analysis={analysis} />;
-      case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} /></>;
+      case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} /></>;
       case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} /></>;
       case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} /></>;
       case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} /></>;
       case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} /></>;
       case "source_matrix": return <><SectionTitle title={section.title} /><SourceDifficultyMatrix analysis={analysis} /></>;
       case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable /></>;
-      case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} /></>;
+      case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} /></>;
       case "killer_deepdive": return <><SectionTitle title={section.title} /><KillerQuestionDeepDive analysis={analysis} /></>;
-      case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} /></>;
+      case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} onUpdate={setAnalysis} /></>;
       default: return <div className="rounded-xl bg-gray-50 border border-gray-200 p-6 text-sm text-gray-500">섹션 내용을 여기에 추가하세요.</div>;
     }
   };

@@ -3,15 +3,24 @@ import React from "react";
 import { TrendingUp, Target, Zap, ThumbsUp, AlertTriangle } from "lucide-react";
 import type { ExamAnalysis } from "@/lib/types";
 import { DIFFICULTY_COLORS } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
-export default function ExecutiveSummaryCards({ analysis }: Props) {
+export default function ExecutiveSummaryCards({ analysis, onUpdate }: Props) {
   const topUnit = analysis.unitDistribution[0];
   const killerCount = analysis.questions.filter((q) => q.isKiller).length;
   const schoolPrintKillers = analysis.questions.filter((q) => q.isKiller && q.source === "학교 프린트").length;
+
+  const updateSummary = (idx: number, val: string) => {
+    if (!onUpdate) return;
+    const next = [...analysis.executiveSummary];
+    next[idx] = val;
+    onUpdate({ ...analysis, executiveSummary: next });
+  };
 
   const insightData = [
     {
@@ -110,7 +119,12 @@ export default function ExecutiveSummaryCards({ analysis }: Props) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold mb-1" style={{ color: ins.color }}>{ins.title}</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{ins.body}</p>
+                <EditableText
+                  value={ins.body}
+                  onChange={(val) => updateSummary(ins.num - 1, val)}
+                  multiline
+                  className="text-sm text-gray-700 leading-relaxed"
+                />
               </div>
             </div>
           ))}
