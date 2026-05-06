@@ -78,6 +78,18 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const isFirstRender = React.useRef(true);
+
+  // 텍스트 변경 시 2초 디바운스 자동저장
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const timer = setTimeout(() => {
+      saveReport(analysis);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 1500);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [analysis]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -151,7 +163,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
 
   const renderSectionContent = (section: ReportSection) => {
     switch (section.type as SectionType) {
-      case "hero": return <ReportHero analysis={analysis} />;
+      case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} />;
       case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} /></>;
       case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} /></>;
       case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} /></>;

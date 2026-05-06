@@ -65,6 +65,7 @@ export type ExamAnalysis = {
     message: string;
   };
   finalStrategy: string[];
+  overrides?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
 };
