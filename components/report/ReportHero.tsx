@@ -50,15 +50,15 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
           <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-[#F97316]/10" />
         </div>
         <div className="relative p-8 md:p-10 text-center">
-          <div className="text-[#F97316] font-extrabold text-sm uppercase tracking-widest mb-1">
+          <div className="text-[#F97316] font-extrabold text-lg uppercase tracking-widest mb-3">
             <EditableText
               value={topLabel}
               onChange={(val) => onUpdate?.(set(analysis, "heroTopLabel", val))}
               className="text-[#F97316]"
-              defaultSize="sm"
+              defaultSize="lg"
             />
           </div>
-          <div className="text-4xl md:text-5xl font-black text-white mb-2">
+          <div className="text-6xl md:text-7xl font-black text-white mb-3 leading-none">
             <EditableText
               value={schoolShort}
               onChange={(val) => onUpdate?.(set(analysis, "heroSchool", val))}
@@ -66,7 +66,7 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
               defaultSize="3xl"
             />
           </div>
-          <p className="text-white/50 text-sm">{analysis.schoolName} | {analysis.grade} | {analysis.subject} | {analysis.examName}</p>
+          <p className="text-white/50 text-base">{analysis.schoolName} | {analysis.grade} | {analysis.subject} | {analysis.examName}</p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
           {analysis.schoolName} {analysis.grade} {analysis.subject} {analysis.examName} 정밀 분석 보고서
         </p>
 
-        <h1 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-3">
+        <h1 className="text-4xl md:text-5xl font-black text-[#111827] leading-tight mb-4">
           <EditableText
             value={subtitle}
             onChange={(val) => onUpdate?.(set(analysis, "heroSubtitle", val))}
@@ -86,49 +86,45 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
           />
         </h1>
 
-        <p className="text-sm text-gray-400 mb-1">
+        <p className="text-base text-gray-400 mb-1">
           {analysis.unitDistribution[0]?.unit ?? "주요 단원"}의 연산 ~ {analysis.unitDistribution[1]?.unit ?? "핵심 단원"} | 출제일: {new Date(analysis.createdAt).toLocaleDateString("ko-KR")}
         </p>
 
         {/* 메타 태그 */}
         <div className="flex flex-wrap gap-2 mb-8 mt-3">
           {[analysis.schoolName, analysis.grade, analysis.subject, analysis.examName, "포텐수학 분석기관"].map((tag) => (
-            <span key={tag} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600 font-medium">{tag}</span>
+            <span key={tag} className="rounded-full border border-gray-200 bg-gray-50 px-4 py-1.5 text-sm text-gray-600 font-medium">{tag}</span>
           ))}
         </div>
 
         {/* 핵심 통계 카드 */}
-        <div className="grid grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-4 mb-8">
           {stats.map((stat) => (
-            <div key={stat.label} className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-center">
-              <p className="text-xs text-gray-400 mb-1">{stat.label}</p>
-              <p className="text-2xl font-black" style={{ color: stat.color }}>{stat.value}</p>
+            <div key={stat.label} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
+              <p className="text-sm text-gray-400 mb-2">{stat.label}</p>
+              <p className="text-4xl font-black" style={{ color: stat.color }}>{stat.value}</p>
             </div>
           ))}
         </div>
 
         {/* 훅 문구 */}
-        <div className="relative rounded-2xl overflow-hidden bg-[#111827] p-8 md:p-10 text-center">
+        <div className="relative rounded-3xl overflow-hidden bg-[#111827] px-8 py-12 md:px-12 md:py-16 text-center">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F4D] to-[#111827]" />
           <div className="relative">
-            <div className="flex justify-center gap-1 mb-4">
-              <span className="text-[#F97316] text-5xl leading-none font-black">"</span>
-            </div>
-            <div className="text-3xl md:text-4xl font-black text-white leading-tight mb-4">
+            <span className="text-[#F97316] text-7xl leading-none font-black block mb-2">"</span>
+            <div className="text-4xl md:text-5xl font-black text-white leading-snug mb-4">
               <EditableText
                 value={hookLine}
                 onChange={(val) => onUpdate?.(set(analysis, "heroHook", val))}
                 multiline
                 className="text-white"
-                defaultSize="2xl"
+                defaultSize="3xl"
               />
             </div>
-            <div className="flex justify-end">
-              <span className="text-[#F97316] text-5xl leading-none font-black">"</span>
-            </div>
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5">
-              <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: diffColor }} />
-              <span className="text-xs text-white/80 font-medium">
+            <span className="text-[#F97316] text-7xl leading-none font-black block text-right mb-6">"</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2">
+              <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: diffColor }} />
+              <span className="text-base text-white/80 font-medium">
                 전반 난이도: <strong style={{ color: diffColor }}>{analysis.overallDifficulty}</strong> · 체감: {analysis.perceivedDifficulty}
               </span>
             </div>
