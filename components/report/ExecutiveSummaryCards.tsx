@@ -43,7 +43,7 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate }: Props) {
         <div className="rounded-3xl bg-[#EFF6FF] border-2 border-blue-200 p-8 space-y-3">
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-[#0B1F4D] text-white text-sm font-black px-4 py-1">상위권</span>
-            <span className="text-base font-bold text-[#0B1F4D]">기회 (Opportunity)</span>
+            <span className="text-base font-bold text-[#0B1F4D]">기회</span>
           </div>
           <p className="text-2xl font-black text-[#0B1F4D] leading-snug">예상보다 쉬웠다</p>
           <p className="text-base text-gray-600 leading-relaxed">
@@ -54,7 +54,7 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate }: Props) {
         <div className="rounded-3xl bg-[#FFF1F2] border-2 border-red-200 p-8 space-y-3">
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-[#DC2626] text-white text-sm font-black px-4 py-1">중·하위권</span>
-            <span className="text-base font-bold text-[#DC2626]">위기 (Crisis)</span>
+            <span className="text-base font-bold text-[#DC2626]">위기</span>
           </div>
           <p className="text-2xl font-black text-[#DC2626] leading-snug">예상보다 어려웠다</p>
           <p className="text-base text-gray-600 leading-relaxed">

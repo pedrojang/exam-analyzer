@@ -74,7 +74,7 @@ export default function EditableBlock({
       </div>
 
       <div
-        className="min-h-screen py-16 px-4 md:px-10"
+        className="py-10 px-4 md:px-10"
         onClick={onSelect}
       >
         {children}

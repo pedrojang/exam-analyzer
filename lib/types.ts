@@ -118,7 +118,7 @@ export const SECTION_LABELS: Record<SectionType, string> = {
   source_matrix: "출처-난이도 매트릭스",
   question_diagnosis: "문항별 정밀 진단",
   killer_summary: "킬러 문항 요약",
-  killer_deepdive: "킬러 문항 Deep Dive",
+  killer_deepdive: "킬러 문항 심층 분석",
   final_strategy: "최종 처방 / 기말 대비 전략",
 };
 

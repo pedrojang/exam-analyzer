@@ -84,8 +84,8 @@ export default function ExamFlowChart({ analysis }: Props) {
         ))}
       </div>
 
-      <ResponsiveContainer width="100%" height={320}>
-        <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+      <ResponsiveContainer width="100%" height={340}>
+        <AreaChart data={data} margin={{ top: 40, right: 30, left: 0, bottom: 20 }}>
           <defs>
             <linearGradient id="diffGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#0B1F4D" stopOpacity={0.3} />
@@ -164,7 +164,7 @@ export default function ExamFlowChart({ analysis }: Props) {
 
       <div className="rounded-xl bg-[#0B1F4D]/5 border border-[#0B1F4D]/10 p-4">
         <p className="text-sm text-[#0B1F4D] leading-relaxed">
-          <span className="font-bold">📊 AI 흐름 해석: </span>
+          <span className="font-bold">흐름 해석: </span>
           {autoInterpretation}
         </p>
       </div>

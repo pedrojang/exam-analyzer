@@ -58,7 +58,7 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
               defaultSize="lg"
             />
           </div>
-          <div className="text-6xl md:text-7xl font-black text-white mb-3 leading-none">
+          <div className="font-black text-white mb-3 leading-none" style={{ fontSize: "clamp(3rem, 20vw, 9rem)" }}>
             <EditableText
               value={schoolShort}
               onChange={(val) => onUpdate?.(set(analysis, "heroSchool", val))}

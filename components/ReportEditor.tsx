@@ -51,7 +51,7 @@ const DEFAULT_SECTIONS: Omit<ReportSection, "id">[] = [
   { type: "source_matrix", title: "출처-난이도 매트릭스", visible: true, order: 6 },
   { type: "question_diagnosis", title: "문항별 정밀 진단", visible: true, order: 7 },
   { type: "killer_summary", title: "킬러 문항 요약", visible: true, order: 8 },
-  { type: "killer_deepdive", title: "킬러 문항 Deep Dive", visible: true, order: 9 },
+  { type: "killer_deepdive", title: "킬러 문항 심층 분석", visible: true, order: 9 },
   { type: "final_strategy", title: "최종 처방 / 기말 대비 전략", visible: true, order: 10 },
 ];
 
