@@ -61,9 +61,9 @@ interface Props {
 
 function SectionTitle({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-3 mb-5">
-      <div className="h-6 w-1 rounded-full bg-[#F97316]" />
-      <h2 className="text-xl font-black text-[#0B1F4D]">{title}</h2>
+    <div className="flex items-center gap-4 mb-10">
+      <div className="h-8 w-1.5 rounded-full bg-[#F97316]" />
+      <h2 className="text-3xl font-black text-[#0B1F4D]">{title}</h2>
     </div>
   );
 }

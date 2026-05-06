@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { TrendingUp, Target, Zap, ThumbsUp, AlertTriangle } from "lucide-react";
 import type { ExamAnalysis } from "@/lib/types";
 import { DIFFICULTY_COLORS } from "@/lib/types";
 import EditableText from "@/components/ui/EditableText";
@@ -10,143 +9,105 @@ interface Props {
   onUpdate?: (updated: ExamAnalysis) => void;
 }
 
+const updateSummary = (analysis: ExamAnalysis, idx: number, val: string): ExamAnalysis => {
+  const next = [...analysis.executiveSummary];
+  next[idx] = val;
+  return { ...analysis, executiveSummary: next };
+};
+
+const INSIGHT_COLORS = ["#F97316", "#0B1F4D", "#DC2626"];
+const INSIGHT_TITLES = ["체감 난이도 상승", "압도적 단원 편중", "고득점의 열쇠 = 학교 프린트"];
+
 export default function ExecutiveSummaryCards({ analysis, onUpdate }: Props) {
   const topUnit = analysis.unitDistribution[0];
   const killerCount = analysis.questions.filter((q) => q.isKiller).length;
-  const schoolPrintKillers = analysis.questions.filter((q) => q.isKiller && q.source === "학교 프린트").length;
-
-  const updateSummary = (idx: number, val: string) => {
-    if (!onUpdate) return;
-    const next = [...analysis.executiveSummary];
-    next[idx] = val;
-    onUpdate({ ...analysis, executiveSummary: next });
-  };
-
-  const insightData = [
-    {
-      num: 1,
-      color: "#F97316",
-      icon: TrendingUp,
-      title: "체감 난이도 상승",
-      body: analysis.executiveSummary[0] ?? "전반부보다 후반부 난이도가 급격히 상승하는 구조입니다.",
-    },
-    {
-      num: 2,
-      color: "#0B1F4D",
-      icon: Target,
-      title: "압도적 단원 편중",
-      body: analysis.executiveSummary[1] ?? `'${topUnit?.unit}' 단원이 전체 배점의 ${topUnit?.percentage?.toFixed(1)}%를 독점합니다.`,
-    },
-    {
-      num: 3,
-      color: "#DC2626",
-      icon: Zap,
-      title: "고득점의 열쇠 = 학교 프린트",
-      body: analysis.executiveSummary[2] ?? `킬러 ${killerCount}문항 중 ${schoolPrintKillers}문항이 학교 프린트 출처입니다.`,
-    },
-  ];
+  const killerNums = analysis.killerSummary.killerQuestionNumbers.join("·");
+  const diffColor = DIFFICULTY_COLORS[analysis.overallDifficulty];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
 
-      {/* ── 수준별 체감 난이도 온도차 ── */}
-      <div>
-        <h3 className="text-lg font-black text-[#111827] mb-4 flex items-center gap-2">
-          <span className="h-5 w-1 rounded-full bg-[#F97316]" />
-          수준별 체감 난이도의 극명한 온도차
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 상위권 - Opportunity */}
-          <div className="rounded-2xl overflow-hidden border border-blue-200">
-            <div className="bg-[#0B1F4D] px-5 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="h-4 w-4 text-white" />
-                <span className="text-white font-bold text-sm">상위권</span>
-              </div>
-              <span className="text-xs font-bold text-[#F97316] bg-[#F97316]/20 rounded-full px-2 py-0.5">기회와 안도 (Opportunity)</span>
-            </div>
-            <div className="bg-blue-50 p-5">
-              <p className="text-lg font-black text-[#0B1F4D] mb-2">체감 난이도: 예상보다 쉬움</p>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                가장 배점 높은 킬러 문항({analysis.killerSummary.killerQuestionNumbers.join("·")}번)이 모두 학교 프린트 연계. 프린트를 완벽히 다독한 최상위권에게는 오히려 시간 단축이 가능한 구조입니다.
-              </p>
-              <div className="mt-3 rounded-xl bg-[#0B1F4D]/8 border border-[#0B1F4D]/15 px-4 py-2">
-                <p className="text-xs font-semibold text-[#0B1F4D]">기말 극복 과제: 지금처럼 공부하면 된다</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 중·하위권 - Crisis */}
-          <div className="rounded-2xl overflow-hidden border border-red-200">
-            <div className="bg-[#DC2626] px-5 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-white" />
-                <span className="text-white font-bold text-sm">중·하위권</span>
-              </div>
-              <span className="text-xs font-bold text-red-100 bg-white/20 rounded-full px-2 py-0.5">위기와 패닉 (Crisis)</span>
-            </div>
-            <div className="bg-red-50 p-5">
-              <p className="text-lg font-black text-[#DC2626] mb-2">체감 난이도: 예상보다 어려움</p>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                교과서 기본 문제 비중은 낮고, 선 조건 정리 2번 이후 과정에서 시간이 부족해 시험 운용에 큰 타격을 입었을 것입니다.
-              </p>
-              <div className="mt-3 rounded-xl bg-red-100 border border-red-200 px-4 py-2">
-                <p className="text-xs font-semibold text-red-700">기말 극복 과제: 시중 교재 필수 유형의 완벽한 암기와 체화</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* ── 핵심 난이도 한눈에 ── */}
+      <div className="rounded-3xl bg-[#0B1F4D] text-white p-8 text-center space-y-4">
+        <p className="text-base font-bold text-white/50 uppercase tracking-widest">전반 난이도</p>
+        <p className="text-8xl font-black" style={{ color: diffColor }}>
+          {analysis.overallDifficulty}
+        </p>
+        <p className="text-xl font-bold text-white/80">{analysis.perceivedDifficulty}</p>
       </div>
 
-      {/* ── 총평 및 핵심 인사이트 ── */}
-      <div>
-        <h3 className="text-lg font-black text-[#111827] mb-4 flex items-center gap-2">
-          <span className="h-5 w-1 rounded-full bg-[#0B1F4D]" />
-          총평 및 핵심 인사이트 (Executive Summary)
-        </h3>
-        <div className="space-y-3">
-          {insightData.map((ins) => (
-            <div
-              key={ins.num}
-              className="flex items-start gap-4 rounded-xl border px-5 py-4"
-              style={{ borderColor: `${ins.color}25`, backgroundColor: `${ins.color}06` }}
-            >
-              <div
-                className="flex-shrink-0 rounded-lg px-2.5 py-1 text-xs font-black text-white"
-                style={{ backgroundColor: ins.color }}
-              >
-                Insight {ins.num}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold mb-1" style={{ color: ins.color }}>{ins.title}</p>
-                <EditableText
-                  value={ins.body}
-                  onChange={(val) => updateSummary(ins.num - 1, val)}
-                  multiline
-                  className="text-sm text-gray-700 leading-relaxed"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ── 상위권 vs 중하위권 ── */}
+      <div className="space-y-4">
+        <p className="text-lg font-black text-gray-400 uppercase tracking-wider">수준별 체감 온도차</p>
 
-      {/* ── 전반 난이도 종합 ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">전반 난이도</p>
-          <p className="text-4xl font-black" style={{ color: DIFFICULTY_COLORS[analysis.overallDifficulty] }}>
-            {analysis.overallDifficulty}
+        <div className="rounded-3xl bg-[#EFF6FF] border-2 border-blue-200 p-8 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-[#0B1F4D] text-white text-sm font-black px-4 py-1">상위권</span>
+            <span className="text-base font-bold text-[#0B1F4D]">기회 (Opportunity)</span>
+          </div>
+          <p className="text-2xl font-black text-[#0B1F4D] leading-snug">예상보다 쉬웠다</p>
+          <p className="text-base text-gray-600 leading-relaxed">
+            킬러 {killerNums}번이 모두 학교 프린트 연계 — 프린트 완성자에겐 시간 단축 구조
           </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">체감 난이도</p>
-          <p className="text-base font-bold text-gray-800 leading-snug">{analysis.perceivedDifficulty}</p>
+
+        <div className="rounded-3xl bg-[#FFF1F2] border-2 border-red-200 p-8 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-[#DC2626] text-white text-sm font-black px-4 py-1">중·하위권</span>
+            <span className="text-base font-bold text-[#DC2626]">위기 (Crisis)</span>
+          </div>
+          <p className="text-2xl font-black text-[#DC2626] leading-snug">예상보다 어려웠다</p>
+          <p className="text-base text-gray-600 leading-relaxed">
+            교과서 기본 비중은 낮고, 후반 킬러 구간에서 시간이 급격히 부족해짐
+          </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">킬러 문항</p>
-          <p className="text-4xl font-black text-[#DC2626]">{killerCount}문항</p>
-          <p className="text-xs text-gray-400 mt-1">{analysis.killerSummary.killerQuestionNumbers.join("·")}번</p>
+      </div>
+
+      {/* ── 핵심 인사이트 3개 ── */}
+      <div className="space-y-4">
+        <p className="text-lg font-black text-gray-400 uppercase tracking-wider">핵심 인사이트</p>
+        {INSIGHT_TITLES.map((title, i) => {
+          const body = analysis.executiveSummary[i] ?? "";
+          return (
+            <div
+              key={i}
+              className="rounded-3xl p-8 space-y-4"
+              style={{ backgroundColor: `${INSIGHT_COLORS[i]}08`, border: `2px solid ${INSIGHT_COLORS[i]}20` }}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className="text-lg font-black text-white rounded-xl px-3 py-1"
+                  style={{ backgroundColor: INSIGHT_COLORS[i] }}
+                >
+                  0{i + 1}
+                </span>
+                <p className="text-xl font-black" style={{ color: INSIGHT_COLORS[i] }}>{title}</p>
+              </div>
+              <EditableText
+                value={body}
+                onChange={(val) => onUpdate?.(updateSummary(analysis, i, val))}
+                multiline
+                defaultSize="base"
+                className="text-gray-700 leading-relaxed"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── 핵심 수치 요약 ── */}
+      <div className="grid grid-cols-1 gap-4">
+        <div className="rounded-3xl bg-gray-50 border border-gray-200 p-8 flex items-center justify-between">
+          <p className="text-lg font-bold text-gray-500">핵심 단원</p>
+          <p className="text-2xl font-black text-[#0B1F4D]">{topUnit?.unit}</p>
+        </div>
+        <div className="rounded-3xl bg-red-50 border border-red-200 p-8 flex items-center justify-between">
+          <p className="text-lg font-bold text-gray-500">킬러 문항</p>
+          <p className="text-2xl font-black text-[#DC2626]">{killerNums}번</p>
+        </div>
+        <div className="rounded-3xl bg-gray-50 border border-gray-200 p-8 flex items-center justify-between">
+          <p className="text-lg font-bold text-gray-500">킬러 배점</p>
+          <p className="text-2xl font-black text-[#DC2626]">{analysis.killerSummary.totalKillerScore}점</p>
         </div>
       </div>
     </div>
