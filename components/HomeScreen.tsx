@@ -1,19 +1,16 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FileSearch, BookOpen, ChevronRight, Sparkles, BarChart3, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+const features = [
+  { icon: FileSearch, text: "PDF 스캔본 자동 분석" },
+  { icon: BarChart3, text: "5종 고급 분석 그래프" },
+  { icon: FileText, text: "블로그 바로 올릴 수 있는 리포트 생성" },
+  { icon: Sparkles, text: "GPT 기반 AI 인사이트" },
+];
 
 export default function HomeScreen() {
-  const router = useRouter();
-
-  const features = [
-    { icon: FileSearch, text: "PDF 스캔본 자동 분석" },
-    { icon: BarChart3, text: "5종 고급 분석 그래프" },
-    { icon: FileText, text: "블로그 바로 올릴 수 있는 리포트 생성" },
-    { icon: Sparkles, text: "GPT 기반 AI 인사이트" },
-  ];
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-white to-slate-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-4xl">
@@ -46,8 +43,8 @@ export default function HomeScreen() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-slide-up">
-          <button
-            onClick={() => router.push("/analyze")}
+          <Link
+            href="/analyze"
             className="group relative overflow-hidden rounded-2xl p-8 text-left shadow-lg hover:shadow-xl transition-all duration-200 active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, #0B1F4D 0%, #1a3a7a 100%)" }}
           >
@@ -66,10 +63,10 @@ export default function HomeScreen() {
                 <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
-          </button>
+          </Link>
 
-          <button
-            onClick={() => router.push("/reports")}
+          <Link
+            href="/reports"
             className="group relative overflow-hidden rounded-2xl p-8 text-left shadow-lg hover:shadow-xl transition-all duration-200 active:scale-[0.98] bg-white border border-gray-200"
           >
             <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#0B1F4D]/3 -translate-y-10 translate-x-10" />
@@ -86,7 +83,7 @@ export default function HomeScreen() {
                 <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
-          </button>
+          </Link>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-8">

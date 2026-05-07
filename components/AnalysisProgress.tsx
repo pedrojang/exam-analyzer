@@ -23,6 +23,7 @@ export default function AnalysisProgress({ onComplete }: Props) {
   useEffect(() => {
     const timers: NodeJS.Timeout[] = [];
     const TOTAL_DURATION = 3500;
+    let rafId: number;
 
     STEPS.forEach((step, i) => {
       const t = setTimeout(() => setCurrentStep(i + 1), step.delay + step.duration);
@@ -35,10 +36,10 @@ export default function AnalysisProgress({ onComplete }: Props) {
       const p = Math.min(100, (elapsed / TOTAL_DURATION) * 100);
       setProgress(p);
       if (p < 100) {
-        requestAnimationFrame(tick);
+        rafId = requestAnimationFrame(tick);
       }
     };
-    requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
 
     const completeTimer = setTimeout(() => {
       setProgress(100);
@@ -46,7 +47,10 @@ export default function AnalysisProgress({ onComplete }: Props) {
     }, TOTAL_DURATION);
     timers.push(completeTimer);
 
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      timers.forEach(clearTimeout);
+      cancelAnimationFrame(rafId);
+    };
   }, [onComplete]);
 
   return (

@@ -74,12 +74,12 @@ export default function UploadScreen() {
     setIsAnalyzing(true);
   };
 
-  const handleAnalysisComplete = () => {
+  const handleAnalysisComplete = useCallback(() => {
     const id = generateId();
     const analysis = createMockFromMetadata(metadata, id);
     saveNewReport(analysis);
     router.push(`/report/${id}`);
-  };
+  }, [metadata, router]);
 
   if (isAnalyzing) {
     return (
