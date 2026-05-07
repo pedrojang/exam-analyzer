@@ -27,15 +27,17 @@ const DiffBadge = ({ d }: { d: Difficulty }) => (
 
 const SourceBadge = ({ s }: { s: string }) => {
   const isSchoolPrint = s === "학교 프린트";
+  if (isSchoolPrint) {
+    return (
+      <span className="relative flex items-center justify-center rounded-full py-0.5 text-xs font-semibold bg-[#0B1F4D] text-white w-full">
+        <span className="absolute left-2 leading-none">★</span>
+        학교 프린트
+      </span>
+    );
+  }
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-        isSchoolPrint
-          ? "bg-[#0B1F4D] text-white"
-          : "bg-gray-100 text-gray-600"
-      }`}
-    >
-      {isSchoolPrint && "★ "}{s}
+    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">
+      {s}
     </span>
   );
 };
@@ -139,10 +141,10 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
             <div className="rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <table className="w-full table-fixed text-sm">
                 <colgroup>
-                  <col style={{ width: "42px" }} />
-                  <col style={{ width: "80px" }} />
+                  <col style={{ width: "48px" }} />
+                  <col style={{ width: "92px" }} />
                   <col style={{ width: "52px" }} />
-                  <col style={{ width: "88px" }} />
+                  <col style={{ width: "90px" }} />
                   <col />
                 </colgroup>
                 <thead>
@@ -161,17 +163,17 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                       <React.Fragment key={q.id}>
                         {/* 1줄: 기본 정보 */}
                         <tr className={`border-t border-gray-100 ${rowBg}`}>
-                          <td className="px-2 pt-3 pb-1">
+                          <td className="px-2 pt-3 pb-1 whitespace-nowrap">
                             <span className="font-black text-[#0B1F4D]">{q.number}번</span>
                             {q.isKiller && <AlertTriangle className="inline ml-0.5 h-3 w-3 text-red-500" />}
                           </td>
-                          <td className="px-2 pt-3 pb-1">
+                          <td className="px-2 pt-3 pb-1 whitespace-nowrap">
                             <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${q.type === "서술형" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"}`}>
                               {q.type}
                             </span>
                             <span className="ml-1 font-bold text-gray-800 text-xs">{q.score}점</span>
                           </td>
-                          <td className="px-2 pt-3 pb-1"><DiffBadge d={q.difficulty} /></td>
+                          <td className="px-2 pt-3 pb-1 whitespace-nowrap"><DiffBadge d={q.difficulty} /></td>
                           <td className="px-2 pt-3 pb-1"><SourceBadge s={q.source} /></td>
                           <td className="px-2 pt-3 pb-1 text-gray-700 text-xs">
                             <EditCell q={q} col="unit" />
