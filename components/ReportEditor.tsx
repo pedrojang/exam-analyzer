@@ -164,18 +164,19 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
   const selectedSection = sections.find((s) => s.id === activeId) ?? null;
 
   const renderSectionContent = (section: ReportSection) => {
+    const sc = analysis.sectionConfig?.[section.type as SectionType];
     switch (section.type as SectionType) {
-      case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} />;
-      case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} />;
+      case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
       case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} /></>;
       case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "source_matrix": return <><SectionTitle title={section.title} /><SourceDifficultyMatrix analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable /></>;
-      case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable sectionConfig={sc} /></>;
+      case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
       case "killer_deepdive": return <><SectionTitle title={section.title} /><KillerQuestionDeepDive analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
       default: return <div className="rounded-xl bg-gray-50 border border-gray-200 p-6 text-sm text-gray-500">섹션 내용을 여기에 추가하세요.</div>;
     }
   };
@@ -264,6 +265,8 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
           <div className="absolute right-0 top-0 bottom-0 z-30 shadow-2xl">
             <RightPropertyPanel
               section={selectedSection}
+              analysis={analysis}
+              onUpdate={setAnalysis}
               onClose={() => setPanelOpen(false)}
               onTitleChange={updateTitle}
               onAiRewrite={handleAiRewrite}

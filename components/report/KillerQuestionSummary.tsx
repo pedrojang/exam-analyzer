@@ -1,20 +1,22 @@
 "use client";
 import React from "react";
 import { AlertTriangle } from "lucide-react";
-import type { ExamAnalysis } from "@/lib/types";
+import type { ExamAnalysis, SectionConfig } from "@/lib/types";
 import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
   onUpdate?: (updated: ExamAnalysis) => void;
+  sectionConfig?: SectionConfig;
 }
 
-export default function KillerQuestionSummary({ analysis, onUpdate }: Props) {
+export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfig }: Props) {
   const { killerSummary } = analysis;
   const ov = analysis.overrides ?? {};
   const pct = ((killerSummary.totalKillerScore / analysis.totalScore) * 100).toFixed(0);
   const basicScore = analysis.totalScore - killerSummary.totalKillerScore;
   const basicPct = 100 - Number(pct);
+  const isHidden = (id: string) => sectionConfig?.hiddenElements?.includes(id) ?? false;
 
   const setText = (key: string, val: string) =>
     onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
@@ -42,7 +44,7 @@ export default function KillerQuestionSummary({ analysis, onUpdate }: Props) {
       </div>
 
       {/* ── 핵심 수치 ── */}
-      <div className="grid grid-cols-2 gap-4">
+      {!isHidden("killer_score_cards") && <div className="grid grid-cols-2 gap-4">
         <div className="rounded-3xl bg-red-50 border-2 border-red-200 p-8 text-center space-y-2">
           <EditableText value={ov.killer_total_label ?? "킬러 총 배점"} onChange={(v) => setText("killer_total_label", v)}
             className="text-base font-bold text-red-400" defaultSize="base" />
@@ -57,10 +59,10 @@ export default function KillerQuestionSummary({ analysis, onUpdate }: Props) {
           <EditableText value={ov.killer_max_sub ?? "90점 돌파 불가"} onChange={(v) => setText("killer_max_sub", v)}
             className="text-base text-gray-400" defaultSize="base" />
         </div>
-      </div>
+      </div>}
 
       {/* ── 배점 구조 바 ── */}
-      <div className="space-y-3">
+      {!isHidden("killer_score_bar") && <div className="space-y-3">
         <EditableText value={ov.killer_structure_label ?? "배점 구조"} onChange={(v) => setText("killer_structure_label", v)}
           className="text-lg font-black text-gray-400 uppercase tracking-wider block" defaultSize="lg" />
         <div className="rounded-2xl overflow-hidden h-16 flex">
@@ -77,30 +79,32 @@ export default function KillerQuestionSummary({ analysis, onUpdate }: Props) {
           <span>기본 구간 {basicScore}점</span>
           <span>킬러 {killerSummary.totalKillerScore}점</span>
         </div>
-      </div>
+      </div>}
 
       {/* ── 킬러 메시지 ── */}
-      <div className="rounded-3xl bg-[#111827] p-10 space-y-4">
+      {!isHidden("killer_analysis_msg") && <div className="rounded-3xl bg-[#111827] p-10 space-y-4">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-6 w-6 text-[#F97316] flex-shrink-0" />
           <EditableText value={ov.killer_analysis_label ?? "분석"} onChange={(v) => setText("killer_analysis_label", v)}
             className="text-base font-bold text-[#F97316] uppercase tracking-wider" defaultSize="base" />
         </div>
         <EditableText
-          value={killerSummary.message}
-          onChange={(val) => onUpdate?.({ ...analysis, killerSummary: { ...killerSummary, message: val } })}
+          value={ov.killer_message ?? killerSummary.message}
+          onChange={(v) => setText("killer_message", v)}
           multiline defaultSize="lg" className="text-white leading-relaxed"
         />
-      </div>
+      </div>}
 
       {/* ── 결론 ── */}
-      <div className="rounded-3xl bg-[#DC2626] p-10 text-center">
-        <EditableText
-          value={ov.killer_conclusion ?? `90점 돌파는 이 ${killerSummary.killerQuestionNumbers.length}문제 정복 없이는\n구조적으로 불가능합니다.`}
-          onChange={(v) => setText("killer_conclusion", v)}
-          multiline defaultSize="xl" className="font-black text-white leading-snug block"
-        />
-      </div>
+      {!isHidden("killer_conclusion_box") && (
+        <div className="rounded-3xl bg-[#DC2626] p-10 text-center">
+          <EditableText
+            value={ov.killer_conclusion ?? `90점 돌파는 이 ${killerSummary.killerQuestionNumbers.length}문제 정복 없이는\n구조적으로 불가능합니다.`}
+            onChange={(v) => setText("killer_conclusion", v)}
+            multiline defaultSize="xl" className="font-black text-white leading-snug block"
+          />
+        </div>
+      )}
     </div>
   );
 }

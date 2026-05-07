@@ -20,6 +20,12 @@ export type QuestionAnalysis = {
   isKiller: boolean;
 };
 
+export type SectionConfig = {
+  accentColor?: string;
+  hiddenElements?: string[];
+  itemCount?: number;
+};
+
 export type ExamAnalysis = {
   id: string;
   title: string;
@@ -66,6 +72,7 @@ export type ExamAnalysis = {
   };
   finalStrategy: string[];
   overrides?: Record<string, string>;
+  sectionConfig?: Partial<Record<SectionType, SectionConfig>>;
   createdAt: string;
   updatedAt: string;
 };

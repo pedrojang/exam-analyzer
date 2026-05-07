@@ -9,6 +9,7 @@ interface Props {
   analysis: ExamAnalysis;
   onUpdate?: (updated: ExamAnalysis) => void;
   editable?: boolean;
+  sectionConfig?: import("@/lib/types").SectionConfig;
 }
 
 const DiffBadge = ({ d }: { d: Difficulty }) => (
@@ -71,41 +72,34 @@ const ZONES: ZoneDef[] = [
   },
 ];
 
-export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = false }: Props) {
-  const [editingCell, setEditingCell] = useState<{ row: number; col: string } | null>(null);
-  const [localQs, setLocalQs] = useState<QuestionAnalysis[]>(analysis.questions);
+export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = false, sectionConfig }: Props) {
+  const [editingCell, setEditingCell] = useState<{ qId: string; col: string } | null>(null);
   const ov = analysis.overrides ?? {};
   const setText = (key: string, val: string) =>
     onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+  const isHidden = (id: string) => sectionConfig?.hiddenElements?.includes(id) ?? false;
 
-  const handleEdit = (rowIdx: number, col: keyof QuestionAnalysis, value: string) => {
-    const updated = localQs.map((q, i) => {
-      if (i !== rowIdx) return q;
-      if (col === "score") return { ...q, score: Number(value) };
-      if (col === "difficulty") return { ...q, difficulty: value as Difficulty };
-      return { ...q, [col]: value };
-    });
-    setLocalQs(updated);
-    if (onUpdate) onUpdate({ ...analysis, questions: updated });
-  };
+  const ovKey = (qId: string, col: string) => `q_${qId}_${col}`;
 
-  const EditCell = ({ value, rowIdx, col }: { value: string | number; rowIdx: number; col: keyof QuestionAnalysis }) => {
-    const isEditing = editable && editingCell?.row === rowIdx && editingCell?.col === col;
+  const EditCell = ({ q, col }: { q: QuestionAnalysis; col: "unit" | "requiredThinking" | "studentPanicReason" }) => {
+    const key = ovKey(q.id, col);
+    const value = ov[key] ?? String(q[col] ?? "");
+    const isEditing = editable && editingCell?.qId === q.id && editingCell?.col === col;
     if (isEditing) {
       return (
         <input
           autoFocus
-          defaultValue={String(value)}
+          defaultValue={value}
           className="w-full rounded border border-[#0B1F4D] px-1 py-0.5 text-xs focus:outline-none"
-          onBlur={(e) => { handleEdit(rowIdx, col, e.target.value); setEditingCell(null); }}
-          onKeyDown={(e) => { if (e.key === "Enter") { handleEdit(rowIdx, col, e.currentTarget.value); setEditingCell(null); }}}
+          onBlur={(e) => { setText(key, e.target.value); setEditingCell(null); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { setText(key, e.currentTarget.value); setEditingCell(null); } }}
         />
       );
     }
     return (
       <span
         className={editable ? "cursor-pointer hover:bg-blue-50 rounded px-0.5 transition-colors" : ""}
-        onClick={() => editable && setEditingCell({ row: rowIdx, col })}
+        onClick={() => editable && setEditingCell({ qId: q.id, col })}
       >
         {value}
       </span>
@@ -115,7 +109,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
   return (
     <div className="space-y-10">
       {ZONES.map((zone) => {
-        const qs = localQs.filter(zone.filter);
+        const qs = analysis.questions.filter(zone.filter);
         if (qs.length === 0) return null;
         const zoneTotal = qs.reduce((s, q) => s + q.score, 0);
         const hasKiller = qs.some((q) => q.isKiller);
@@ -156,9 +150,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                   </tr>
                 </thead>
                 <tbody>
-                  {qs.map((q, i) => {
-                    const globalIdx = localQs.findIndex((x) => x.id === q.id);
-                    return (
+                  {qs.map((q, i) => (
                       <tr
                         key={q.id}
                         className={`border-t border-gray-100 ${q.isKiller ? "bg-red-50" : i % 2 === 0 ? "bg-white" : "bg-gray-50/40"}`}
@@ -176,39 +168,40 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                         <td className="px-4 py-3 whitespace-nowrap"><DiffBadge d={q.difficulty} /></td>
                         <td className="px-4 py-3 whitespace-nowrap"><SourceBadge s={q.source} /></td>
                         <td className="px-4 py-3 text-gray-700 text-xs max-w-[130px]">
-                          <EditCell value={q.unit} rowIdx={globalIdx} col="unit" />
+                          <EditCell q={q} col="unit" />
                         </td>
                         <td className="px-4 py-3 text-gray-600 text-xs max-w-[180px]">
-                          <EditCell value={q.requiredThinking} rowIdx={globalIdx} col="requiredThinking" />
+                          <EditCell q={q} col="requiredThinking" />
                         </td>
                         <td className={`px-4 py-3 text-xs max-w-[180px] ${q.isKiller ? "text-red-700 font-medium" : "text-gray-600"}`}>
-                          <EditCell value={q.studentPanicReason} rowIdx={globalIdx} col="studentPanicReason" />
+                          <EditCell q={q} col="studentPanicReason" />
                         </td>
                       </tr>
-                    );
-                  })}
+                  ))}
                 </tbody>
               </table>
             </div>
 
             {/* Zone 설명 */}
-            <div
-              className="mt-3 rounded-xl px-4 py-3 text-xs font-medium italic flex gap-1"
-              style={{ backgroundColor: `${zone.color}08`, color: zone.color }}
-            >
-              <span className="flex-shrink-0">*</span>
-              <EditableText
-                value={ov[`zone_desc_${zone.key}`] ?? (
-                  zone.key === "basic"
-                    ? "초반부는 교과서 중심의 평이한 난이도(하~중)로 구성되어 기본기 점검 및 점수 확보에 주력하는 구간입니다."
-                    : zone.key === "standard"
-                    ? "중반부 변별 문항(중상~상) 및 고배점 서술형에 '학교 프린트'가 집중적으로 배치되어 있습니다."
-                    : "후반 킬러 문항은 외부가 아닌 '학교 프린트'에 숨어 있었습니다. 프린트 완벽 마스터가 1등급의 보증수표입니다."
-                )}
-                onChange={(v) => setText(`zone_desc_${zone.key}`, v)}
-                multiline defaultSize="xs" style={{ color: zone.color }}
-              />
-            </div>
+            {!isHidden(`zone_desc_${zone.key}`) && (
+              <div
+                className="mt-3 rounded-xl px-4 py-3 text-xs font-medium italic flex gap-1"
+                style={{ backgroundColor: `${zone.color}08`, color: zone.color }}
+              >
+                <span className="flex-shrink-0">*</span>
+                <EditableText
+                  value={ov[`zone_desc_${zone.key}`] ?? (
+                    zone.key === "basic"
+                      ? "초반부는 교과서 중심의 평이한 난이도(하~중)로 구성되어 기본기 점검 및 점수 확보에 주력하는 구간입니다."
+                      : zone.key === "standard"
+                      ? "중반부 변별 문항(중상~상) 및 고배점 서술형에 '학교 프린트'가 집중적으로 배치되어 있습니다."
+                      : "후반 킬러 문항은 외부가 아닌 '학교 프린트'에 숨어 있었습니다. 프린트 완벽 마스터가 1등급의 보증수표입니다."
+                  )}
+                  onChange={(v) => setText(`zone_desc_${zone.key}`, v)}
+                  multiline defaultSize="xs" style={{ color: zone.color }}
+                />
+              </div>
+            )}
           </div>
         );
       })}

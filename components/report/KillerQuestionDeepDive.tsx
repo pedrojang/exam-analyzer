@@ -17,10 +17,6 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
   const setText = (key: string, val: string) =>
     onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
 
-  const setQField = (qId: string, field: "requiredThinking" | "likelyTrap" | "studentPanicReason", val: string) => {
-    const next = analysis.questions.map((q) => q.id === qId ? { ...q, [field]: val } : q);
-    onUpdate?.({ ...analysis, questions: next });
-  };
 
   return (
     <div className="space-y-6">
@@ -52,8 +48,8 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color }}>필요한 사고 단계</span>
                 </div>
                 <EditableText
-                  value={q.requiredThinking}
-                  onChange={(v) => setQField(q.id, "requiredThinking", v)}
+                  value={ov[`q_${q.id}_required_thinking`] ?? q.requiredThinking}
+                  onChange={(v) => setText(`q_${q.id}_required_thinking`, v)}
                   multiline defaultSize="sm" className="text-gray-700"
                 />
               </div>
@@ -64,8 +60,8 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                   <span className="text-xs font-bold uppercase tracking-wider text-amber-700">흔한 함정</span>
                 </div>
                 <EditableText
-                  value={q.likelyTrap}
-                  onChange={(v) => setQField(q.id, "likelyTrap", v)}
+                  value={ov[`q_${q.id}_likely_trap`] ?? q.likelyTrap}
+                  onChange={(v) => setText(`q_${q.id}_likely_trap`, v)}
                   multiline defaultSize="sm" className="text-amber-800"
                 />
               </div>
@@ -76,8 +72,8 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                   <span className="text-xs font-bold uppercase tracking-wider text-red-600">학생 당황 원인</span>
                 </div>
                 <EditableText
-                  value={q.studentPanicReason}
-                  onChange={(v) => setQField(q.id, "studentPanicReason", v)}
+                  value={ov[`q_${q.id}_student_panic_reason`] ?? q.studentPanicReason}
+                  onChange={(v) => setText(`q_${q.id}_student_panic_reason`, v)}
                   multiline defaultSize="sm" className="text-red-700"
                 />
               </div>

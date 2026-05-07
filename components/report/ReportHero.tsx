@@ -1,13 +1,14 @@
 "use client";
 import React from "react";
 import { BookOpen, Hash, FileText, Target } from "lucide-react";
-import type { ExamAnalysis } from "@/lib/types";
+import type { ExamAnalysis, SectionConfig } from "@/lib/types";
 import { DIFFICULTY_COLORS } from "@/lib/types";
 import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
   onUpdate?: (updated: ExamAnalysis) => void;
+  sectionConfig?: SectionConfig;
 }
 
 const HOOK_LINES: Record<string, string> = {
@@ -23,8 +24,9 @@ const set = (analysis: ExamAnalysis, key: string, val: string): ExamAnalysis => 
   overrides: { ...analysis.overrides, [key]: val },
 });
 
-export default function ReportHero({ analysis, onUpdate }: Props) {
+export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props) {
   const diffColor = DIFFICULTY_COLORS[analysis.overallDifficulty];
+  const isHidden = (id: string) => sectionConfig?.hiddenElements?.includes(id) ?? false;
 
   const hookLine    = analysis.overrides?.heroHook     ?? HOOK_LINES[analysis.overallDifficulty] ?? "시험을 지배하는 자가 등급을 지배한다.";
   const subtitle    = analysis.overrides?.heroSubtitle ?? "난이도 상승의 원인 분석 및\n90점 이상 고득점 달성 전략";
@@ -66,12 +68,14 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
               defaultSize="massive"
             />
           </div>
-          <EditableText
-            value={analysis.overrides?.heroMeta ?? `${analysis.schoolName} | ${analysis.grade} | ${analysis.subject} | ${analysis.examName}`}
-            onChange={(val) => onUpdate?.(set(analysis, "heroMeta", val))}
-            className="text-white/50 text-base"
-            defaultSize="base"
-          />
+          {!isHidden("hero_meta") && (
+            <EditableText
+              value={analysis.overrides?.heroMeta ?? `${analysis.schoolName} | ${analysis.grade} | ${analysis.subject} | ${analysis.examName}`}
+              onChange={(val) => onUpdate?.(set(analysis, "heroMeta", val))}
+              className="text-white/50 text-base"
+              defaultSize="base"
+            />
+          )}
         </div>
       </div>
 
@@ -109,17 +113,19 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
         </div>
 
         {/* 핵심 통계 카드 */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {stats.map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
-              <p className="text-sm text-gray-400 mb-2">{stat.label}</p>
-              <p className="text-4xl font-black" style={{ color: stat.color }}>{stat.value}</p>
-            </div>
-          ))}
-        </div>
+        {!isHidden("hero_stats") && (
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
+                <p className="text-sm text-gray-400 mb-2">{stat.label}</p>
+                <p className="text-4xl font-black" style={{ color: stat.color }}>{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* 훅 문구 */}
-        <div className="relative rounded-3xl overflow-hidden bg-[#111827] px-4 py-12 text-center">
+        {!isHidden("hero_hook") && <div className="relative rounded-3xl overflow-hidden bg-[#111827] px-4 py-12 text-center">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F4D] to-[#111827]" />
           <div className="relative">
             <span className="text-[#F97316] text-7xl leading-none font-black block text-center mb-2">"</span>
@@ -143,7 +149,7 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
               />
             </div>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );
