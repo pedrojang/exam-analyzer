@@ -136,15 +136,22 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-              <table className="min-w-full text-sm">
+            <div className="rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <table className="w-full table-fixed text-sm">
+                <colgroup>
+                  <col style={{ width: "42px" }} />
+                  <col style={{ width: "80px" }} />
+                  <col style={{ width: "52px" }} />
+                  <col style={{ width: "88px" }} />
+                  <col />
+                </colgroup>
                 <thead>
                   <tr style={{ backgroundColor: zone.color + "15" }}>
-                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">번호</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">유형 (배점)</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">난이도</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">출제처</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600">단원</th>
+                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600">번호</th>
+                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600">유형 (배점)</th>
+                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600">난이도</th>
+                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600">출제처</th>
+                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600">단원</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -154,25 +161,25 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                       <React.Fragment key={q.id}>
                         {/* 1줄: 기본 정보 */}
                         <tr className={`border-t border-gray-100 ${rowBg}`}>
-                          <td className="px-2 pt-3 pb-1 whitespace-nowrap">
+                          <td className="px-2 pt-3 pb-1">
                             <span className="font-black text-[#0B1F4D]">{q.number}번</span>
-                            {q.isKiller && <AlertTriangle className="inline ml-1 h-3.5 w-3.5 text-red-500" />}
+                            {q.isKiller && <AlertTriangle className="inline ml-0.5 h-3 w-3 text-red-500" />}
                           </td>
-                          <td className="px-4 pt-3 pb-1 whitespace-nowrap">
-                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${q.type === "서술형" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"}`}>
+                          <td className="px-2 pt-3 pb-1">
+                            <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${q.type === "서술형" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"}`}>
                               {q.type}
                             </span>
-                            <span className="ml-1.5 font-bold text-gray-800">{q.score}점</span>
+                            <span className="ml-1 font-bold text-gray-800 text-xs">{q.score}점</span>
                           </td>
-                          <td className="px-4 pt-3 pb-1 whitespace-nowrap"><DiffBadge d={q.difficulty} /></td>
-                          <td className="px-4 pt-3 pb-1 whitespace-nowrap"><SourceBadge s={q.source} /></td>
-                          <td className="px-4 pt-3 pb-1 text-gray-700 text-xs">
+                          <td className="px-2 pt-3 pb-1"><DiffBadge d={q.difficulty} /></td>
+                          <td className="px-2 pt-3 pb-1"><SourceBadge s={q.source} /></td>
+                          <td className="px-2 pt-3 pb-1 text-gray-700 text-xs">
                             <EditCell q={q} col="unit" />
                           </td>
                         </tr>
                         {/* 2줄: 필요한 사고 | 당황 포인트 */}
                         <tr className={rowBg}>
-                          <td colSpan={5} className="px-4 pb-3 pt-0">
+                          <td colSpan={5} className="px-2 pb-3 pt-0">
                             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs border-t border-dashed border-gray-200 pt-1.5">
                               <span className="font-semibold text-gray-500 whitespace-nowrap">필요한 사고:</span>
                               <span className={q.isKiller ? "text-red-700" : "text-gray-600"}>
