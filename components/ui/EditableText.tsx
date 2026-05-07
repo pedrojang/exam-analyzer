@@ -278,7 +278,7 @@ export default function EditableText({
           ...style,
           fontSize: `${computedFontSize}px`,
           ...(size === "massive" && massivePx ? { lineHeight: 1 } : {}),
-          whiteSpace: "pre-wrap",
+          whiteSpace: style?.whiteSpace ?? "pre-wrap",
         }}
       >
         {value || <span className="text-gray-300 italic" style={{ fontSize: 13 }}>{placeholder}</span>}

@@ -42,7 +42,7 @@ export default function MobilePreviewModal({ onClose, children }: Props) {
             <div
               data-preview-root="true"
               className="flex-1 overflow-y-auto"
-              style={{ width: 404 }}
+              style={{ width: 408 }}
             >
               <div className="px-3 py-3 space-y-5">
                 {children}

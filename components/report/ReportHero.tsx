@@ -130,7 +130,7 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
                   value={analysis.overrides?.[`hero_stat_val_${i}`] ?? stat.value}
                   onChange={(val) => setText(`hero_stat_val_${i}`, val)}
                   styleKey={`hero_stat_val_${i}`}
-                  className="font-black block" style={{ color: stat.color }} defaultSize="2xl"
+                  className="font-black block" style={{ color: stat.color, whiteSpace: "nowrap" }} defaultSize="2xl"
                 />
               </div>
             ))}
