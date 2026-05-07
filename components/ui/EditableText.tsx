@@ -49,6 +49,7 @@ interface Props {
   style?: React.CSSProperties;
   placeholder?: string;
   defaultSize?: TextSize;
+  autoFit?: boolean;
 }
 
 export default function EditableText({
@@ -60,6 +61,7 @@ export default function EditableText({
   style,
   placeholder,
   defaultSize = "sm",
+  autoFit = false,
 }: Props) {
   const { getStyle, setStyle, readOnly: ctxReadOnly, overrides: ctxOverrides } = useContext(StyleContext);
   const isReadOnly = ctxReadOnly ?? false;
@@ -97,6 +99,7 @@ export default function EditableText({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const outerRef    = useRef<HTMLElement>(null);
   const measureRef  = useRef<HTMLSpanElement>(null);
+  const [autoFitScale, setAutoFitScale] = useState(1);
 
   const persistStyle = useCallback((s: TextSize, sc: number, b: boolean) => {
     if (styleKey) setStyle(styleKey, { size: s, scale: sc, bold: b });
@@ -131,8 +134,12 @@ export default function EditableText({
       }
       el = el.parentElement;
     }
-    const cw = el?.offsetWidth ?? 0;
-    if (cw === 0) return;
+    if (!el) return;
+    const cs = window.getComputedStyle(el);
+    const cw = el.clientWidth
+      - parseFloat(cs.paddingLeft)
+      - parseFloat(cs.paddingRight);
+    if (cw <= 0) return;
     setMassivePx(Math.min(Math.floor((cw * 0.5 / tw) * 100), 400));
   }, []);
 
@@ -179,6 +186,29 @@ export default function EditableText({
     displaySize === "massive" && massivePx
       ? massivePx * displayScale
       : BASE_PX[displaySize] * displayScale;
+
+  useLayoutEffect(() => {
+    if (!autoFit || editing) { setAutoFitScale(1); return; }
+    const parent = outerRef.current?.parentElement;
+    if (!parent) return;
+
+    const fit = () => {
+      const measure = measureRef.current;
+      if (!measure) return;
+      const cs = window.getComputedStyle(parent);
+      const available = parent.clientWidth
+        - parseFloat(cs.paddingLeft)
+        - parseFloat(cs.paddingRight);
+      const measured = measure.offsetWidth * (computedFontSize / 100);
+      if (available <= 0 || measured <= 0) return;
+      setAutoFitScale(Math.min(1, Math.max(0.45, available / measured)));
+    };
+
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, [autoFit, computedFontSize, editing, value]);
 
   const boldClass = displayBold ? "font-black" : "";
   const inputStyle: React.CSSProperties = {
@@ -276,9 +306,12 @@ export default function EditableText({
         className={`${isReadOnly ? "" : "cursor-text"} ${boldClass} ${className}`}
         style={{
           ...style,
-          fontSize: `${computedFontSize}px`,
+          fontSize: `${computedFontSize * autoFitScale}px`,
           ...(size === "massive" && massivePx ? { lineHeight: 1 } : {}),
-          whiteSpace: style?.whiteSpace ?? "pre-wrap",
+          whiteSpace: style?.whiteSpace ?? (autoFit ? "nowrap" : "pre-wrap"),
+          wordBreak: "keep-all",
+          overflowWrap: "normal",
+          ...(autoFit ? { display: "inline-block", maxWidth: "100%" } : {}),
         }}
       >
         {value || <span className="text-gray-300 italic" style={{ fontSize: 13 }}>{placeholder}</span>}
