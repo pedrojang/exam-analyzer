@@ -181,18 +181,19 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
 
   const renderSectionContent = (section: ReportSection, isPreview = false) => {
     const sc = analysis.sectionConfig?.[section.type as SectionType];
+    const T = !isPreview ? <SectionTitle title={section.title} /> : null;
     switch (section.type as SectionType) {
       case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} />;
-      case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
-      case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "source_matrix": return <><SectionTitle title={section.title} /><SourceDifficultyMatrix analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable={!isPreview} sectionConfig={sc} /></>;
-      case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
-      case "killer_deepdive": return <><SectionTitle title={section.title} /><KillerQuestionDeepDive analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
+      case "executive_summary": return <>{T}<ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
+      case "unit_distribution": return <>{T}<UnitDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "type_distribution": return <>{T}<TypeScoreDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "difficulty_distribution": return <>{T}<DifficultyDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "exam_flow": return <>{T}<ExamFlowChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "source_matrix": return <>{T}<SourceDifficultyMatrix analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "question_diagnosis": return <>{T}<QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable={!isPreview} sectionConfig={sc} /></>;
+      case "killer_summary": return <>{T}<KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
+      case "killer_deepdive": return <>{T}<KillerQuestionDeepDive analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "final_strategy": return <>{T}<FinalStrategySection analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
       default: return <div className="rounded-xl bg-gray-50 border border-gray-200 p-6 text-sm text-gray-500">섹션 내용을 여기에 추가하세요.</div>;
     }
   };
