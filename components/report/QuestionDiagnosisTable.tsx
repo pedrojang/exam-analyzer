@@ -29,9 +29,9 @@ const SourceBadge = ({ s }: { s: string }) => {
   const isSchoolPrint = s === "학교 프린트";
   if (isSchoolPrint) {
     return (
-      <span className="relative flex items-center justify-center rounded-full py-0.5 text-xs font-semibold bg-[#0B1F4D] text-white w-full">
-        <span className="absolute left-2 leading-none">★</span>
-        학교 프린트
+      <span className="flex items-center rounded-full px-2 py-1 text-xs font-semibold bg-[#0B1F4D] text-white w-full gap-1">
+        <span className="flex-shrink-0 leading-none">★</span>
+        <span className="flex-1 text-center leading-tight">학교<br />프린트</span>
       </span>
     );
   }
