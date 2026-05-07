@@ -140,7 +140,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
               <table className="min-w-full text-sm">
                 <thead>
                   <tr style={{ backgroundColor: zone.color + "15" }}>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">번호</th>
+                    <th className="px-2 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">번호</th>
                     <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">유형 (배점)</th>
                     <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">난이도</th>
                     <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">출제처</th>
@@ -154,7 +154,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                       <React.Fragment key={q.id}>
                         {/* 1줄: 기본 정보 */}
                         <tr className={`border-t border-gray-100 ${rowBg}`}>
-                          <td className="px-4 pt-3 pb-1 whitespace-nowrap">
+                          <td className="px-2 pt-3 pb-1 whitespace-nowrap">
                             <span className="font-black text-[#0B1F4D]">{q.number}번</span>
                             {q.isKiller && <AlertTriangle className="inline ml-1 h-3.5 w-3.5 text-red-500" />}
                           </td>
