@@ -181,7 +181,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                         </tr>
                         {/* 2줄: 필요한 사고 / 당황 포인트 */}
                         <tr className={rowBg}>
-                          <td colSpan={5} className="px-2 pb-3 pt-0">
+                          <td colSpan={5} className="pl-6 pr-2 pb-3 pt-0">
                             <div className="flex flex-col gap-y-0.5 text-xs border-t border-dashed border-gray-200 pt-1.5">
                               <div className="flex items-baseline gap-x-1.5">
                                 <span className="font-semibold text-gray-500 whitespace-nowrap">필요한 사고:</span>
