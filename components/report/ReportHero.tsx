@@ -42,14 +42,14 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
     <div className="space-y-0">
       {/* 썸네일 헤더 */}
       <div
-        className="relative rounded-2xl overflow-hidden"
+        className="relative rounded-2xl overflow-hidden aspect-square"
         style={{ background: "linear-gradient(135deg, #0B1F4D 0%, #1a3a7a 60%, #0f2d6b 100%)" }}
       >
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-white/4" />
           <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-[#F97316]/10" />
         </div>
-        <div className="relative p-8 md:p-10 text-center">
+        <div className="relative h-full flex flex-col items-center justify-center p-8 md:p-10 text-center">
           <div className="text-[#F97316] font-extrabold text-lg uppercase tracking-widest mb-3">
             <EditableText
               value={topLabel}
@@ -58,23 +58,31 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
               defaultSize="lg"
             />
           </div>
-          <div className="font-black text-white mb-3 leading-none" style={{ fontSize: "clamp(3rem, 20vw, 9rem)" }}>
+          <div className="font-black text-white mb-3 leading-none">
             <EditableText
               value={schoolShort}
               onChange={(val) => onUpdate?.(set(analysis, "heroSchool", val))}
               className="text-white"
-              defaultSize="3xl"
+              defaultSize="massive"
             />
           </div>
-          <p className="text-white/50 text-base">{analysis.schoolName} | {analysis.grade} | {analysis.subject} | {analysis.examName}</p>
+          <EditableText
+            value={analysis.overrides?.heroMeta ?? `${analysis.schoolName} | ${analysis.grade} | ${analysis.subject} | ${analysis.examName}`}
+            onChange={(val) => onUpdate?.(set(analysis, "heroMeta", val))}
+            className="text-white/50 text-base"
+            defaultSize="base"
+          />
         </div>
       </div>
 
       {/* 보고서 표지 */}
       <div className="rounded-b-2xl bg-white border border-t-0 border-gray-200 px-8 md:px-12 py-10 shadow-sm">
-        <p className="text-xs font-semibold text-gray-400 tracking-widest uppercase mb-3">
-          {analysis.schoolName} {analysis.grade} {analysis.subject} {analysis.examName} 정밀 분석 보고서
-        </p>
+        <EditableText
+          value={analysis.overrides?.heroReportLabel ?? `${analysis.schoolName} ${analysis.grade} ${analysis.subject} ${analysis.examName} 정밀 분석 보고서`}
+          onChange={(val) => onUpdate?.(set(analysis, "heroReportLabel", val))}
+          className="text-xs font-semibold text-gray-400 tracking-widest uppercase block mb-3"
+          defaultSize="xs"
+        />
 
         <h1 className="text-4xl md:text-5xl font-black text-[#111827] leading-tight mb-4">
           <EditableText
@@ -86,9 +94,12 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
           />
         </h1>
 
-        <p className="text-base text-gray-400 mb-1">
-          {analysis.unitDistribution[0]?.unit ?? "주요 단원"}의 연산 ~ {analysis.unitDistribution[1]?.unit ?? "핵심 단원"} | 출제일: {new Date(analysis.createdAt).toLocaleDateString("ko-KR")}
-        </p>
+        <EditableText
+          value={analysis.overrides?.heroRange ?? `${analysis.unitDistribution[0]?.unit ?? "주요 단원"}의 연산 ~ ${analysis.unitDistribution[1]?.unit ?? "핵심 단원"} | 출제일: ${new Date(analysis.createdAt).toLocaleDateString("ko-KR")}`}
+          onChange={(val) => onUpdate?.(set(analysis, "heroRange", val))}
+          className="text-base text-gray-400 block mb-1"
+          defaultSize="base"
+        />
 
         {/* 메타 태그 */}
         <div className="flex flex-wrap gap-2 mb-8 mt-3">
@@ -108,10 +119,10 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
         </div>
 
         {/* 훅 문구 */}
-        <div className="relative rounded-3xl overflow-hidden bg-[#111827] px-8 py-12 md:px-12 md:py-16 text-center">
+        <div className="relative rounded-3xl overflow-hidden bg-[#111827] px-4 py-12 text-center">
           <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F4D] to-[#111827]" />
           <div className="relative">
-            <span className="text-[#F97316] text-7xl leading-none font-black block mb-2">"</span>
+            <span className="text-[#F97316] text-7xl leading-none font-black block text-center mb-2">"</span>
             <div className="text-4xl md:text-5xl font-black text-white leading-snug mb-4">
               <EditableText
                 value={hookLine}
@@ -121,12 +132,15 @@ export default function ReportHero({ analysis, onUpdate }: Props) {
                 defaultSize="3xl"
               />
             </div>
-            <span className="text-[#F97316] text-7xl leading-none font-black block text-right mb-6">"</span>
+            <span className="text-[#F97316] text-7xl leading-none font-black block text-center mb-6">"</span>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2">
               <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: diffColor }} />
-              <span className="text-base text-white/80 font-medium">
-                전반 난이도: <strong style={{ color: diffColor }}>{analysis.overallDifficulty}</strong> · 체감: {analysis.perceivedDifficulty}
-              </span>
+              <EditableText
+                value={analysis.overrides?.heroDiffBadge ?? `전반 난이도: ${analysis.overallDifficulty} · 체감: ${analysis.perceivedDifficulty}`}
+                onChange={(val) => onUpdate?.(set(analysis, "heroDiffBadge", val))}
+                className="text-base text-white/80 font-medium"
+                defaultSize="base"
+              />
             </div>
           </div>
         </div>

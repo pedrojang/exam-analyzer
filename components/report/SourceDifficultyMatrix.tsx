@@ -14,9 +14,11 @@ import {
 import type { ExamAnalysis } from "@/lib/types";
 import { getDifficultyNumeric, getSourceNumeric } from "@/lib/utils";
 import { DIFFICULTY_COLORS } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
 const SOURCE_LABELS: Record<number, string> = {
@@ -81,7 +83,11 @@ const CustomDot = (props: {
   );
 };
 
-export default function SourceDifficultyMatrix({ analysis }: Props) {
+export default function SourceDifficultyMatrix({ analysis, onUpdate }: Props) {
+  const ov = analysis.overrides ?? {};
+  const setText = (key: string, val: string) =>
+    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+
   const points = analysis.questions.map((q) => ({
     x: getSourceNumeric(q.source),
     y: getDifficultyNumeric(q.difficulty),
@@ -96,8 +102,10 @@ export default function SourceDifficultyMatrix({ analysis }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm text-gray-500 mb-2">
-        x축: 출제 출처 / y축: 난이도 / 원 크기 = 킬러 문항 여부
+      <div className="mb-2">
+        <EditableText value={ov.matrix_axis_desc ?? "x축: 출제 출처 / y축: 난이도 / 원 크기 = 킬러 문항 여부"}
+          onChange={(v) => setText("matrix_axis_desc", v)}
+          className="text-sm text-gray-500" defaultSize="sm" />
       </div>
       <ResponsiveContainer width="100%" height={340}>
         <ScatterChart margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
@@ -129,14 +137,14 @@ export default function SourceDifficultyMatrix({ analysis }: Props) {
       </ResponsiveContainer>
 
       {schoolPrintHighDiff.length > 0 && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-4">
-          <p className="text-sm text-red-800 leading-relaxed">
-            <span className="font-bold">⚠️ 주목: </span>
-            학교 프린트 출처의 고난도 문항이{" "}
-            <strong>{schoolPrintHighDiff.length}문항</strong> 집중되어 있습니다.
-            ({schoolPrintHighDiff.map((p) => `${p.questionNumber}번`).join(", ")})
-            학교 프린트 완벽 숙지가 고득점의 핵심입니다.
-          </p>
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4 flex gap-1.5">
+          <EditableText value={ov.matrix_insight_label ?? "⚠️ 주목:"} onChange={(v) => setText("matrix_insight_label", v)}
+            className="text-sm font-bold text-red-800 flex-shrink-0" defaultSize="sm" />
+          <EditableText
+            value={ov.matrix_insight_body ?? `학교 프린트 출처의 고난도 문항이 ${schoolPrintHighDiff.length}문항 집중되어 있습니다. (${schoolPrintHighDiff.map((p) => `${p.questionNumber}번`).join(", ")}) 학교 프린트 완벽 숙지가 고득점의 핵심입니다.`}
+            onChange={(v) => setText("matrix_insight_body", v)}
+            multiline defaultSize="sm" className="text-sm text-red-800 leading-relaxed"
+          />
         </div>
       )}
     </div>

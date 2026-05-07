@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import type { ExamAnalysis, QuestionAnalysis, Difficulty } from "@/lib/types";
 import { DIFFICULTY_COLORS } from "@/lib/types";
 import { AlertTriangle } from "lucide-react";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
@@ -73,6 +74,9 @@ const ZONES: ZoneDef[] = [
 export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = false }: Props) {
   const [editingCell, setEditingCell] = useState<{ row: number; col: string } | null>(null);
   const [localQs, setLocalQs] = useState<QuestionAnalysis[]>(analysis.questions);
+  const ov = analysis.overrides ?? {};
+  const setText = (key: string, val: string) =>
+    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
 
   const handleEdit = (rowIdx: number, col: keyof QuestionAnalysis, value: string) => {
     const updated = localQs.map((q, i) => {
@@ -189,14 +193,21 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
 
             {/* Zone 설명 */}
             <div
-              className="mt-3 rounded-xl px-4 py-3 text-xs font-medium italic"
+              className="mt-3 rounded-xl px-4 py-3 text-xs font-medium italic flex gap-1"
               style={{ backgroundColor: `${zone.color}08`, color: zone.color }}
             >
-              * {zone.key === "basic"
-                ? "초반부는 교과서 중심의 평이한 난이도(하~중)로 구성되어 기본기 점검 및 점수 확보에 주력하는 구간입니다."
-                : zone.key === "standard"
-                ? "중반부 변별 문항(중상~상) 및 고배점 서술형에 '학교 프린트'가 집중적으로 배치되어 있습니다."
-                : "후반 킬러 문항은 외부가 아닌 '학교 프린트'에 숨어 있었습니다. 프린트 완벽 마스터가 1등급의 보증수표입니다."}
+              <span className="flex-shrink-0">*</span>
+              <EditableText
+                value={ov[`zone_desc_${zone.key}`] ?? (
+                  zone.key === "basic"
+                    ? "초반부는 교과서 중심의 평이한 난이도(하~중)로 구성되어 기본기 점검 및 점수 확보에 주력하는 구간입니다."
+                    : zone.key === "standard"
+                    ? "중반부 변별 문항(중상~상) 및 고배점 서술형에 '학교 프린트'가 집중적으로 배치되어 있습니다."
+                    : "후반 킬러 문항은 외부가 아닌 '학교 프린트'에 숨어 있었습니다. 프린트 완벽 마스터가 1등급의 보증수표입니다."
+                )}
+                onChange={(v) => setText(`zone_desc_${zone.key}`, v)}
+                multiline defaultSize="xs" style={{ color: zone.color }}
+              />
             </div>
           </div>
         );

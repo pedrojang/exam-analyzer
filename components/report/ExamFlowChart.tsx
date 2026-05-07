@@ -13,9 +13,11 @@ import {
   Legend,
 } from "recharts";
 import type { ExamAnalysis } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
 const ZONE_COLORS = {
@@ -46,8 +48,11 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
   );
 };
 
-export default function ExamFlowChart({ analysis }: Props) {
+export default function ExamFlowChart({ analysis, onUpdate }: Props) {
   const data = analysis.flowData;
+  const ov = analysis.overrides ?? {};
+  const setText = (key: string, val: string) =>
+    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
 
   const zones: { start: number; end: number; zone: "basic" | "standard" | "pressure" | "killer" }[] = [];
   let currentZone = data[0]?.zone;
@@ -162,11 +167,14 @@ export default function ExamFlowChart({ analysis }: Props) {
         </AreaChart>
       </ResponsiveContainer>
 
-      <div className="rounded-xl bg-[#0B1F4D]/5 border border-[#0B1F4D]/10 p-4">
-        <p className="text-sm text-[#0B1F4D] leading-relaxed">
-          <span className="font-bold">흐름 해석: </span>
-          {autoInterpretation}
-        </p>
+      <div className="rounded-xl bg-[#0B1F4D]/5 border border-[#0B1F4D]/10 p-4 flex gap-1.5">
+        <EditableText value={ov.flow_label ?? "흐름 해석:"} onChange={(v) => setText("flow_label", v)}
+          className="text-sm font-bold text-[#0B1F4D] flex-shrink-0" defaultSize="sm" />
+        <EditableText
+          value={ov.flow_interpretation ?? autoInterpretation}
+          onChange={(v) => setText("flow_interpretation", v)}
+          multiline defaultSize="sm" className="text-sm text-[#0B1F4D] leading-relaxed"
+        />
       </div>
     </div>
   );

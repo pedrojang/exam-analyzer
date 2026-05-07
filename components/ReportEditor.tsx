@@ -17,10 +17,11 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 
-import { ChevronLeft, Save, Copy, Download, Image, Plus } from "lucide-react";
+import { ChevronLeft, Save, Copy, Download, Image, Plus, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import DocumentSidebar from "@/components/editor/DocumentSidebar";
+import MobilePreviewModal from "@/components/editor/MobilePreviewModal";
 import EditableBlock from "@/components/editor/EditableBlock";
 import RightPropertyPanel from "@/components/editor/RightPropertyPanel";
 
@@ -78,6 +79,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [mobilePreview, setMobilePreview] = useState(false);
   const isFirstRender = React.useRef(true);
 
   // 텍스트 변경 시 2초 디바운스 자동저장
@@ -166,13 +168,13 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
       case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} />;
       case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} /></>;
       case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} /></>;
-      case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} /></>;
-      case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} /></>;
-      case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} /></>;
-      case "source_matrix": return <><SectionTitle title={section.title} /><SourceDifficultyMatrix analysis={analysis} /></>;
+      case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} onUpdate={setAnalysis} /></>;
+      case "source_matrix": return <><SectionTitle title={section.title} /><SourceDifficultyMatrix analysis={analysis} onUpdate={setAnalysis} /></>;
       case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable /></>;
       case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "killer_deepdive": return <><SectionTitle title={section.title} /><KillerQuestionDeepDive analysis={analysis} /></>;
+      case "killer_deepdive": return <><SectionTitle title={section.title} /><KillerQuestionDeepDive analysis={analysis} onUpdate={setAnalysis} /></>;
       case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} onUpdate={setAnalysis} /></>;
       default: return <div className="rounded-xl bg-gray-50 border border-gray-200 p-6 text-sm text-gray-500">섹션 내용을 여기에 추가하세요.</div>;
     }
@@ -192,6 +194,9 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setMobilePreview(true)} className="gap-1.5 text-xs hidden md:flex">
+            <Smartphone className="h-3.5 w-3.5" /> 모바일 미리보기
+          </Button>
           <Button variant="ghost" size="sm" onClick={handleCopy} className="gap-1.5 text-xs hidden md:flex">
             <Copy className="h-3.5 w-3.5" /> 블로그 글 복사
           </Button>
@@ -208,7 +213,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
       </header>
 
       {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Left Sidebar */}
         <DocumentSidebar
           sections={sections}
@@ -217,9 +222,9 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
           onToggleVisibility={toggleVisibility}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+        {/* Main Content — 모바일 미리보기와 동일한 420px 고정 폭 */}
+        <main className="flex-1 overflow-y-auto bg-[#E8ECF0]">
+          <div className="mx-auto py-8 space-y-4" style={{ width: "min(440px, 100%)", padding: "2rem 20px" }}>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -254,16 +259,35 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
           </div>
         </main>
 
-        {/* Right Panel */}
+        {/* Right Panel — absolute 오버레이, 콘텐츠 너비에 영향 없음 */}
         {panelOpen && (
-          <RightPropertyPanel
-            section={selectedSection}
-            onClose={() => setPanelOpen(false)}
-            onTitleChange={updateTitle}
-            onAiRewrite={handleAiRewrite}
-          />
+          <div className="absolute right-0 top-0 bottom-0 z-30 shadow-2xl">
+            <RightPropertyPanel
+              section={selectedSection}
+              onClose={() => setPanelOpen(false)}
+              onTitleChange={updateTitle}
+              onAiRewrite={handleAiRewrite}
+            />
+          </div>
         )}
       </div>
+
+      {/* 모바일 미리보기 모달 */}
+      {mobilePreview && (
+        <MobilePreviewModal onClose={() => setMobilePreview(false)}>
+          {visibleSections.map((section) => (
+            <div key={section.id}>
+              {section.type !== "hero" && (
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="h-5 w-1 rounded-full bg-[#F97316]" />
+                  <h2 className="text-base font-black text-[#0B1F4D]">{section.title}</h2>
+                </div>
+              )}
+              {renderSectionContent(section)}
+            </div>
+          ))}
+        </MobilePreviewModal>
+      )}
     </div>
   );
 }

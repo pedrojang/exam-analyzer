@@ -2,12 +2,17 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import type { ExamAnalysis } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
-export default function TypeScoreDistributionChart({ analysis }: Props) {
+export default function TypeScoreDistributionChart({ analysis, onUpdate }: Props) {
+  const ov = analysis.overrides ?? {};
+  const setText = (key: string, val: string) =>
+    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
   const data = analysis.typeScoreDistribution.filter((d) => d.score > 0);
   const colors = ["#0B1F4D", "#F97316"];
 
@@ -35,23 +40,27 @@ export default function TypeScoreDistributionChart({ analysis }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl bg-[#0B1F4D]/5 border border-[#0B1F4D]/10 p-4 text-center">
-          <p className="text-xs text-gray-500 mb-1">객관식 총점</p>
+          <EditableText value={ov.type_obj_label ?? "객관식 총점"} onChange={(v) => setText("type_obj_label", v)}
+            className="text-xs text-gray-500 block mb-1" defaultSize="xs" />
           <p className="text-2xl font-bold text-[#0B1F4D]">{analysis.typeScoreDistribution.find((d) => d.type === "객관식")?.score ?? 0}점</p>
           <p className="text-xs text-gray-400 mt-1">{analysis.objectiveCount}문항</p>
         </div>
         <div className="rounded-xl bg-[#F97316]/5 border border-[#F97316]/10 p-4 text-center">
-          <p className="text-xs text-gray-500 mb-1">서술형 총점</p>
+          <EditableText value={ov.type_desc_label ?? "서술형 총점"} onChange={(v) => setText("type_desc_label", v)}
+            className="text-xs text-gray-500 block mb-1" defaultSize="xs" />
           <p className="text-2xl font-bold text-[#F97316]">{analysis.typeScoreDistribution.find((d) => d.type === "서술형")?.score ?? 0}점</p>
           <p className="text-xs text-gray-400 mt-1">{analysis.descriptiveCount}문항</p>
         </div>
       </div>
 
       <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-        <p className="text-sm text-amber-800 leading-relaxed">
-          {hasDescriptive
+        <EditableText
+          value={ov.type_insight ?? (hasDescriptive
             ? `서술형 배점이 총점의 ${descriptiveRatio.toFixed(1)}%를 차지합니다. 서술형 답안 작성 전략과 감점 방어 훈련이 필수적입니다.`
-            : "이 시험은 전 문항이 객관식으로 구성되어 있습니다. 실수 없는 마킹 전략과 정확한 계산이 핵심입니다."}
-        </p>
+            : "이 시험은 전 문항이 객관식으로 구성되어 있습니다. 실수 없는 마킹 전략과 정확한 계산이 핵심입니다.")}
+          onChange={(v) => setText("type_insight", v)}
+          multiline defaultSize="sm" className="text-sm text-amber-800 leading-relaxed"
+        />
       </div>
     </div>
   );

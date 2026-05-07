@@ -3,12 +3,17 @@ import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import type { ExamAnalysis } from "@/lib/types";
 import { DIFFICULTY_COLORS } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: (updated: ExamAnalysis) => void;
 }
 
-export default function DifficultyDistributionChart({ analysis }: Props) {
+export default function DifficultyDistributionChart({ analysis, onUpdate }: Props) {
+  const ov = analysis.overrides ?? {};
+  const setText = (key: string, val: string) =>
+    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
   const data = analysis.difficultyDistribution.map((d) => ({
     ...d,
     fill: DIFFICULTY_COLORS[d.difficulty],
@@ -67,13 +72,11 @@ export default function DifficultyDistributionChart({ analysis }: Props) {
       </div>
 
       <div className="rounded-xl bg-gray-50 border border-gray-200 p-4">
-        <p className="text-sm text-gray-700 leading-relaxed">
-          난이도 <strong className="text-[#F97316]">'상'</strong> 이상 문항이 전체의{" "}
-          <strong className="text-[#DC2626]">{hardPct}%</strong>({hardCount}문항)를 차지합니다.
-          {Number(hardPct) >= 30
-            ? " 이는 상위권 학생도 까다롭게 느낄 수준으로, 중위권 이하 학생의 체감 난이도는 상당히 높았을 것입니다."
-            : " 전반적으로 중간 난이도 문항이 많아, 기초가 탄탄한 학생이라면 고득점을 노릴 수 있는 구조입니다."}
-        </p>
+        <EditableText
+          value={ov.diff_insight ?? `난이도 '상' 이상 문항이 전체의 ${hardPct}%(${hardCount}문항)를 차지합니다.${Number(hardPct) >= 30 ? " 이는 상위권 학생도 까다롭게 느낄 수준으로, 중위권 이하 학생의 체감 난이도는 상당히 높았을 것입니다." : " 전반적으로 중간 난이도 문항이 많아, 기초가 탄탄한 학생이라면 고득점을 노릴 수 있는 구조입니다."}`}
+          onChange={(v) => setText("diff_insight", v)}
+          multiline defaultSize="sm" className="text-sm text-gray-700 leading-relaxed"
+        />
       </div>
     </div>
   );
