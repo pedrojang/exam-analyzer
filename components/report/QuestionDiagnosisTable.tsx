@@ -179,19 +179,22 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                             <EditCell q={q} col="unit" />
                           </td>
                         </tr>
-                        {/* 2줄: 필요한 사고 | 당황 포인트 */}
+                        {/* 2줄: 필요한 사고 / 당황 포인트 */}
                         <tr className={rowBg}>
                           <td colSpan={5} className="px-2 pb-3 pt-0">
-                            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs border-t border-dashed border-gray-200 pt-1.5">
-                              <span className="font-semibold text-gray-500 whitespace-nowrap">필요한 사고:</span>
-                              <span className={q.isKiller ? "text-red-700" : "text-gray-600"}>
-                                <EditCell q={q} col="requiredThinking" />
-                              </span>
-                              <span className="text-gray-300 mx-1 select-none">|</span>
-                              <span className="font-semibold text-gray-500 whitespace-nowrap">당황 포인트:</span>
-                              <span className={q.isKiller ? "text-red-700 font-medium" : "text-gray-600"}>
-                                <EditCell q={q} col="studentPanicReason" />
-                              </span>
+                            <div className="flex flex-col gap-y-0.5 text-xs border-t border-dashed border-gray-200 pt-1.5">
+                              <div className="flex items-baseline gap-x-1.5">
+                                <span className="font-semibold text-gray-500 whitespace-nowrap">필요한 사고:</span>
+                                <span className={q.isKiller ? "text-red-700" : "text-gray-600"}>
+                                  <EditCell q={q} col="requiredThinking" />
+                                </span>
+                              </div>
+                              <div className="flex items-baseline gap-x-1.5">
+                                <span className="font-semibold text-gray-500 whitespace-nowrap">당황 포인트:</span>
+                                <span className={q.isKiller ? "text-red-700 font-medium" : "text-gray-600"}>
+                                  <EditCell q={q} col="studentPanicReason" />
+                                </span>
+                              </div>
                             </div>
                           </td>
                         </tr>
