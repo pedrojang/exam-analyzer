@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 interface Props {
   section: ReportSection | null;
   analysis: ExamAnalysis;
-  onUpdate: (updated: ExamAnalysis) => void;
+  onUpdate: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
   onClose: () => void;
   onTitleChange: (id: string, title: string) => void;
   onAiRewrite: (mode: "blog" | "parent" | "internal") => void;
@@ -63,13 +63,13 @@ export default function RightPropertyPanel({ section, analysis, onUpdate, onClos
   const sc: SectionConfig = analysis.sectionConfig?.[section.type as SectionType] ?? {};
 
   const setSectionConfig = (patch: Partial<SectionConfig>) => {
-    onUpdate({
-      ...analysis,
+    onUpdate((prev) => ({
+      ...prev,
       sectionConfig: {
-        ...analysis.sectionConfig,
-        [section.type]: { ...sc, ...patch },
+        ...prev.sectionConfig,
+        [section.type]: { ...(prev.sectionConfig?.[section.type as SectionType] ?? {}), ...patch },
       },
-    });
+    }));
   };
 
   const toggleElement = (id: string) => {

@@ -17,7 +17,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
 }
 
 const ZONE_COLORS = {
@@ -52,7 +52,7 @@ export default function ExamFlowChart({ analysis, onUpdate }: Props) {
   const data = analysis.flowData;
   const ov = analysis.overrides ?? {};
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   const zones: { start: number; end: number; zone: "basic" | "standard" | "pressure" | "killer" }[] = [];
   let currentZone = data[0]?.zone;
@@ -169,10 +169,11 @@ export default function ExamFlowChart({ analysis, onUpdate }: Props) {
 
       <div className="rounded-xl bg-[#0B1F4D]/5 border border-[#0B1F4D]/10 p-4 flex gap-1.5">
         <EditableText value={ov.flow_label ?? "흐름 해석:"} onChange={(v) => setText("flow_label", v)}
-          className="text-sm font-bold text-[#0B1F4D] flex-shrink-0" defaultSize="sm" />
+          styleKey="flow_label" className="text-sm font-bold text-[#0B1F4D] flex-shrink-0" defaultSize="sm" />
         <EditableText
           value={ov.flow_interpretation ?? autoInterpretation}
           onChange={(v) => setText("flow_interpretation", v)}
+          styleKey="flow_interpretation"
           multiline defaultSize="sm" className="text-sm text-[#0B1F4D] leading-relaxed"
         />
       </div>

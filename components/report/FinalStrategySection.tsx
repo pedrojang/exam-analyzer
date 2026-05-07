@@ -6,7 +6,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
   sectionConfig?: SectionConfig;
 }
 
@@ -20,7 +20,7 @@ export default function FinalStrategySection({ analysis, onUpdate, sectionConfig
   const strategyCount = sectionConfig?.itemCount ?? analysis.finalStrategy.length;
 
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   return (
     <div className="space-y-10">
@@ -31,16 +31,18 @@ export default function FinalStrategySection({ analysis, onUpdate, sectionConfig
         <div className="inline-flex items-center gap-2 rounded-full bg-[#F97316]/20 border border-[#F97316]/40 px-5 py-2">
           <BookMarked className="h-5 w-5 text-[#F97316]" />
           <EditableText value={ov.final_badge ?? "학교 프린트 완벽 해부"} onChange={(v) => setText("final_badge", v)}
-            className="text-base font-bold text-[#F97316]" defaultSize="base" />
+            styleKey="final_badge" className="text-base font-bold text-[#F97316]" defaultSize="base" />
         </div>
         <EditableText
           value={ov.final_headline ?? "90점 돌파를 위한\n단 하나의 전략"}
           onChange={(v) => setText("final_headline", v)}
+          styleKey="final_headline"
           multiline defaultSize="2xl" className="font-black text-white leading-tight block"
         />
         <EditableText
           value={ov.final_meta ?? `핵심 단원 ${topUnit?.unit ?? "—"} · 킬러 ${killerNums}번`}
           onChange={(v) => setText("final_meta", v)}
+          styleKey="final_meta"
           className="text-base text-white/60" defaultSize="base"
         />
       </div>
@@ -57,15 +59,18 @@ export default function FinalStrategySection({ analysis, onUpdate, sectionConfig
                   style={{ backgroundColor: color }}>{i + 1}</div>
                 <EditableText value={ov[`final_strategy_label_${i}`] ?? `전략 ${i + 1}`}
                   onChange={(v) => setText(`final_strategy_label_${i}`, v)}
+                  styleKey={`final_strategy_label_${i}`}
                   className="text-base font-bold" style={{ color }} defaultSize="base" />
               </div>
               <EditableText value={ov[`final_strategy_${i}`] ?? analysis.finalStrategy[i] ?? ""}
                 onChange={(v) => setText(`final_strategy_${i}`, v)}
+                styleKey={`final_strategy_${i}`}
                 multiline defaultSize="lg" className="text-gray-800 font-medium" />
               <div className="flex items-center gap-2 text-base" style={{ color: `${color}80` }}>
                 <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
                 <EditableText value={ov[`final_practice_label_${i}`] ?? "실천 항목"}
                   onChange={(v) => setText(`final_practice_label_${i}`, v)}
+                  styleKey={`final_practice_label_${i}`}
                   className="font-medium" style={{ color: `${color}80` }} defaultSize="base" />
               </div>
             </div>
@@ -78,10 +83,12 @@ export default function FinalStrategySection({ analysis, onUpdate, sectionConfig
         <div className="rounded-3xl bg-[#F8FAFC] border-2 border-[#0B1F4D]/15 p-10 space-y-6">
           <EditableText value={ov.final_conclusion_label ?? "기말고사의 승패를 결정하는 결론"}
             onChange={(v) => setText("final_conclusion_label", v)}
+            styleKey="final_conclusion_label"
             className="text-base font-black text-[#0B1F4D]/50 uppercase tracking-wider block" defaultSize="base" />
           <EditableText
             value={ov.final_conclusion_body ?? "학교가 제시한 '프린트'라는 힌트를\n얼마나 깊이 파고드느냐에 달려 있습니다."}
             onChange={(v) => setText("final_conclusion_body", v)}
+            styleKey="final_conclusion_body"
             multiline defaultSize="2xl" className="font-black text-[#0B1F4D] leading-snug block"
           />
           <div className="grid grid-cols-1 gap-4 pt-2">
@@ -94,12 +101,12 @@ export default function FinalStrategySection({ analysis, onUpdate, sectionConfig
                 style={{ borderColor: `${item.color}25`, backgroundColor: `${item.color}06`, border: `1.5px solid ${item.color}25` }}>
                 <div>
                   <EditableText value={ov[item.labelKey] ?? item.label} onChange={(v) => setText(item.labelKey, v)}
-                    className="text-base text-gray-400 font-medium block" defaultSize="base" />
+                    styleKey={item.labelKey} className="text-base text-gray-400 font-medium block" defaultSize="base" />
                   <EditableText value={ov[item.subKey] ?? item.sub} onChange={(v) => setText(item.subKey, v)}
-                    className="text-base text-gray-500 block" defaultSize="base" />
+                    styleKey={item.subKey} className="text-base text-gray-500 block" defaultSize="base" />
                 </div>
                 <EditableText value={ov[item.valKey] ?? item.val} onChange={(v) => setText(item.valKey, v)}
-                  className="text-2xl font-black" style={{ color: item.color }} defaultSize="2xl" />
+                  styleKey={item.valKey} className="text-2xl font-black" style={{ color: item.color }} defaultSize="2xl" />
               </div>
             ))}
           </div>

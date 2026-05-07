@@ -7,7 +7,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
   editable?: boolean;
   sectionConfig?: import("@/lib/types").SectionConfig;
 }
@@ -76,7 +76,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
   const [editingCell, setEditingCell] = useState<{ qId: string; col: string } | null>(null);
   const ov = analysis.overrides ?? {};
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
   const isHidden = (id: string) => sectionConfig?.hiddenElements?.includes(id) ?? false;
 
   const ovKey = (qId: string, col: string) => `q_${qId}_${col}`;
@@ -145,39 +145,50 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
                     <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">난이도</th>
                     <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600 whitespace-nowrap">출제처</th>
                     <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600">단원</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600">필요한 사고</th>
-                    <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600">학생 당황 포인트</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {qs.map((q, i) => (
-                      <tr
-                        key={q.id}
-                        className={`border-t border-gray-100 ${q.isKiller ? "bg-red-50" : i % 2 === 0 ? "bg-white" : "bg-gray-50/40"}`}
-                      >
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="font-black text-[#0B1F4D]">{q.number}번</span>
-                          {q.isKiller && <AlertTriangle className="inline ml-1 h-3.5 w-3.5 text-red-500" />}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${q.type === "서술형" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"}`}>
-                            {q.type}
-                          </span>
-                          <span className="ml-1.5 font-bold text-gray-800">{q.score}점</span>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap"><DiffBadge d={q.difficulty} /></td>
-                        <td className="px-4 py-3 whitespace-nowrap"><SourceBadge s={q.source} /></td>
-                        <td className="px-4 py-3 text-gray-700 text-xs max-w-[130px]">
-                          <EditCell q={q} col="unit" />
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 text-xs max-w-[180px]">
-                          <EditCell q={q} col="requiredThinking" />
-                        </td>
-                        <td className={`px-4 py-3 text-xs max-w-[180px] ${q.isKiller ? "text-red-700 font-medium" : "text-gray-600"}`}>
-                          <EditCell q={q} col="studentPanicReason" />
-                        </td>
-                      </tr>
-                  ))}
+                  {qs.map((q, i) => {
+                    const rowBg = q.isKiller ? "bg-red-50" : i % 2 === 0 ? "bg-white" : "bg-gray-50/40";
+                    return (
+                      <React.Fragment key={q.id}>
+                        {/* 1줄: 기본 정보 */}
+                        <tr className={`border-t border-gray-100 ${rowBg}`}>
+                          <td className="px-4 pt-3 pb-1 whitespace-nowrap">
+                            <span className="font-black text-[#0B1F4D]">{q.number}번</span>
+                            {q.isKiller && <AlertTriangle className="inline ml-1 h-3.5 w-3.5 text-red-500" />}
+                          </td>
+                          <td className="px-4 pt-3 pb-1 whitespace-nowrap">
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${q.type === "서술형" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"}`}>
+                              {q.type}
+                            </span>
+                            <span className="ml-1.5 font-bold text-gray-800">{q.score}점</span>
+                          </td>
+                          <td className="px-4 pt-3 pb-1 whitespace-nowrap"><DiffBadge d={q.difficulty} /></td>
+                          <td className="px-4 pt-3 pb-1 whitespace-nowrap"><SourceBadge s={q.source} /></td>
+                          <td className="px-4 pt-3 pb-1 text-gray-700 text-xs">
+                            <EditCell q={q} col="unit" />
+                          </td>
+                        </tr>
+                        {/* 2줄: 필요한 사고 | 당황 포인트 */}
+                        <tr className={rowBg}>
+                          <td colSpan={5} className="px-4 pb-3 pt-0">
+                            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs border-t border-dashed border-gray-200 pt-1.5">
+                              <span className="font-semibold text-gray-500 whitespace-nowrap">필요한 사고:</span>
+                              <span className={q.isKiller ? "text-red-700" : "text-gray-600"}>
+                                <EditCell q={q} col="requiredThinking" />
+                              </span>
+                              <span className="text-gray-300 mx-1 select-none">|</span>
+                              <span className="font-semibold text-gray-500 whitespace-nowrap">당황 포인트:</span>
+                              <span className={q.isKiller ? "text-red-700 font-medium" : "text-gray-600"}>
+                                <EditCell q={q} col="studentPanicReason" />
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -190,6 +201,7 @@ export default function QuestionDiagnosisTable({ analysis, onUpdate, editable = 
               >
                 <span className="flex-shrink-0">*</span>
                 <EditableText
+                  styleKey={`zone_desc_${zone.key}`}
                   value={ov[`zone_desc_${zone.key}`] ?? (
                     zone.key === "basic"
                       ? "초반부는 교과서 중심의 평이한 난이도(하~중)로 구성되어 기본기 점검 및 점수 확보에 주력하는 구간입니다."

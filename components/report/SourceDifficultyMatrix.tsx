@@ -18,7 +18,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
 }
 
 const SOURCE_LABELS: Record<number, string> = {
@@ -86,7 +86,7 @@ const CustomDot = (props: {
 export default function SourceDifficultyMatrix({ analysis, onUpdate }: Props) {
   const ov = analysis.overrides ?? {};
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   const points = analysis.questions.map((q) => ({
     x: getSourceNumeric(q.source),
@@ -105,6 +105,7 @@ export default function SourceDifficultyMatrix({ analysis, onUpdate }: Props) {
       <div className="mb-2">
         <EditableText value={ov.matrix_axis_desc ?? "x축: 출제 출처 / y축: 난이도 / 원 크기 = 킬러 문항 여부"}
           onChange={(v) => setText("matrix_axis_desc", v)}
+          styleKey="matrix_axis_desc"
           className="text-sm text-gray-500" defaultSize="sm" />
       </div>
       <ResponsiveContainer width="100%" height={340}>
@@ -139,10 +140,11 @@ export default function SourceDifficultyMatrix({ analysis, onUpdate }: Props) {
       {schoolPrintHighDiff.length > 0 && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-4 flex gap-1.5">
           <EditableText value={ov.matrix_insight_label ?? "⚠️ 주목:"} onChange={(v) => setText("matrix_insight_label", v)}
-            className="text-sm font-bold text-red-800 flex-shrink-0" defaultSize="sm" />
+            styleKey="matrix_insight_label" className="text-sm font-bold text-red-800 flex-shrink-0" defaultSize="sm" />
           <EditableText
             value={ov.matrix_insight_body ?? `학교 프린트 출처의 고난도 문항이 ${schoolPrintHighDiff.length}문항 집중되어 있습니다. (${schoolPrintHighDiff.map((p) => `${p.questionNumber}번`).join(", ")}) 학교 프린트 완벽 숙지가 고득점의 핵심입니다.`}
             onChange={(v) => setText("matrix_insight_body", v)}
+            styleKey="matrix_insight_body"
             multiline defaultSize="sm" className="text-sm text-red-800 leading-relaxed"
           />
         </div>

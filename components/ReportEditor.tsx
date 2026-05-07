@@ -37,6 +37,7 @@ import KillerQuestionSummary from "@/components/report/KillerQuestionSummary";
 import KillerQuestionDeepDive from "@/components/report/KillerQuestionDeepDive";
 import FinalStrategySection from "@/components/report/FinalStrategySection";
 
+import { StyleContext, type TextStyleData } from "@/components/ui/EditableText";
 import type { ExamAnalysis, ReportSection, SectionType } from "@/lib/types";
 import { SECTION_LABELS } from "@/lib/types";
 import { analysisToMarkdown, copyToClipboard } from "@/lib/utils";
@@ -80,6 +81,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
+  const [styleRevision, setStyleRevision] = useState(0);
   const isFirstRender = React.useRef(true);
 
   // 텍스트 변경 시 2초 디바운스 자동저장
@@ -163,7 +165,21 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
 
   const selectedSection = sections.find((s) => s.id === activeId) ?? null;
 
-  const renderSectionContent = (section: ReportSection) => {
+  const getStyle = useCallback((key: string): TextStyleData | undefined => {
+    const raw = analysis.overrides?.[`__s_${key}`];
+    if (!raw) return undefined;
+    try { return JSON.parse(raw) as TextStyleData; } catch { return undefined; }
+  }, [analysis.overrides]);
+
+  const setStyle = useCallback((key: string, style: TextStyleData) => {
+    setAnalysis((prev) => ({
+      ...prev,
+      overrides: { ...(prev.overrides ?? {}), [`__s_${key}`]: JSON.stringify(style) },
+    }));
+    setStyleRevision((r) => r + 1);
+  }, []);
+
+  const renderSectionContent = (section: ReportSection, isPreview = false) => {
     const sc = analysis.sectionConfig?.[section.type as SectionType];
     switch (section.type as SectionType) {
       case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} />;
@@ -173,7 +189,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
       case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "source_matrix": return <><SectionTitle title={section.title} /><SourceDifficultyMatrix analysis={analysis} onUpdate={setAnalysis} /></>;
-      case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable sectionConfig={sc} /></>;
+      case "question_diagnosis": return <><SectionTitle title={section.title} /><QuestionDiagnosisTable analysis={analysis} onUpdate={setAnalysis} editable={!isPreview} sectionConfig={sc} /></>;
       case "killer_summary": return <><SectionTitle title={section.title} /><KillerQuestionSummary analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
       case "killer_deepdive": return <><SectionTitle title={section.title} /><KillerQuestionDeepDive analysis={analysis} onUpdate={setAnalysis} /></>;
       case "final_strategy": return <><SectionTitle title={section.title} /><FinalStrategySection analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
@@ -182,6 +198,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
   };
 
   return (
+    <StyleContext.Provider value={{ getStyle, setStyle, readOnly: false }}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#F8FAFC]">
       {/* Top Bar */}
       <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
@@ -223,9 +240,9 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
           onToggleVisibility={toggleVisibility}
         />
 
-        {/* Main Content — 모바일 미리보기와 동일한 420px 고정 폭 */}
+        {/* Main Content — 콘텐츠 너비 380px, 모바일 미리보기와 동일 */}
         <main className="flex-1 overflow-y-auto bg-[#E8ECF0]">
-          <div className="mx-auto py-8 space-y-4" style={{ width: "min(440px, 100%)", padding: "2rem 20px" }}>
+          <div className="mx-auto py-8 space-y-4" style={{ width: "min(456px, 100%)", padding: "2rem 20px" }}>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -278,19 +295,24 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
       {/* 모바일 미리보기 모달 */}
       {mobilePreview && (
         <MobilePreviewModal onClose={() => setMobilePreview(false)}>
-          {visibleSections.map((section) => (
-            <div key={section.id}>
-              {section.type !== "hero" && (
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="h-5 w-1 rounded-full bg-[#F97316]" />
-                  <h2 className="text-base font-black text-[#0B1F4D]">{section.title}</h2>
-                </div>
-              )}
-              {renderSectionContent(section)}
+          <StyleContext.Provider value={{ getStyle, setStyle, readOnly: true, overrides: analysis.overrides }}>
+            <div key={styleRevision}>
+            {visibleSections.map((section) => (
+              <div key={section.id}>
+                {section.type !== "hero" && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="h-5 w-1 rounded-full bg-[#F97316]" />
+                    <h2 className="text-base font-black text-[#0B1F4D]">{section.title}</h2>
+                  </div>
+                )}
+                {renderSectionContent(section, true)}
+              </div>
+            ))}
             </div>
-          ))}
+          </StyleContext.Provider>
         </MobilePreviewModal>
       )}
     </div>
+    </StyleContext.Provider>
   );
 }

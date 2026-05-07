@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useRef, useLayoutEffect, useCallback } from "react";
+import React, { useState, useRef, useLayoutEffect, useCallback, useContext, useEffect } from "react";
 
 type TextSize = "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "massive";
 
-// 400px 기준 콘텐츠 너비에 맞춘 px 기준값
 const BASE_PX: Record<TextSize, number> = {
   xs:      11,
   sm:      13,
@@ -12,7 +11,7 @@ const BASE_PX: Record<TextSize, number> = {
   xl:      22,
   "2xl":   27,
   "3xl":   33,
-  massive: 0, // 동적 계산
+  massive: 0,
 };
 
 const SIZE_LABELS: Record<TextSize, string> = {
@@ -28,9 +27,23 @@ const SIZE_LABELS: Record<TextSize, string> = {
 
 const VISIBLE_SIZES: TextSize[] = ["xs", "sm", "base", "lg", "xl", "massive"];
 
+export interface TextStyleData { size: TextSize; scale: number; bold: boolean }
+export interface StyleContextType {
+  getStyle: (key: string) => TextStyleData | undefined;
+  setStyle: (key: string, style: TextStyleData) => void;
+  readOnly?: boolean;
+  overrides?: Record<string, string>;
+}
+export const StyleContext = React.createContext<StyleContextType>({
+  getStyle: () => undefined,
+  setStyle: () => {},
+  readOnly: false,
+});
+
 interface Props {
   value: string;
   onChange: (val: string) => void;
+  styleKey?: string;
   multiline?: boolean;
   className?: string;
   style?: React.CSSProperties;
@@ -41,39 +54,80 @@ interface Props {
 export default function EditableText({
   value,
   onChange,
+  styleKey,
   multiline = false,
   className = "",
   style,
   placeholder,
   defaultSize = "sm",
 }: Props) {
+  const { getStyle, setStyle, readOnly: ctxReadOnly, overrides: ctxOverrides } = useContext(StyleContext);
+  const isReadOnly = ctxReadOnly ?? false;
+
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
-  const [size, setSize] = useState<TextSize>(defaultSize);
-  const [bold, setBold] = useState(false);
-  const [sizeScale, setSizeScale] = useState(1.0); // 0.8 / 1.0 / 1.2
-  const [massivePx, setMassivePx] = useState<number | null>(defaultSize === "massive" ? 40 : null);
+  const [size, setSize] = useState<TextSize>(() => {
+    const stored = styleKey ? getStyle(styleKey) : undefined;
+    return stored?.size ?? defaultSize;
+  });
+  const [bold, setBold] = useState<boolean>(() => {
+    const stored = styleKey ? getStyle(styleKey) : undefined;
+    return stored?.bold ?? false;
+  });
+  const [sizeScale, setSizeScale] = useState<number>(() => {
+    const stored = styleKey ? getStyle(styleKey) : undefined;
+    return stored?.scale ?? 1.0;
+  });
+  const [massivePx, setMassivePx] = useState<number | null>(() => {
+    const stored = styleKey ? getStyle(styleKey) : undefined;
+    return (stored?.size ?? defaultSize) === "massive" ? 40 : null;
+  });
+
+  // 미리보기(readOnly)에서 편집창 스타일 변경을 실시간 반영
+  useEffect(() => {
+    if (!isReadOnly || !styleKey) return;
+    const stored = getStyle(styleKey);
+    if (!stored) return;
+    setSize(stored.size);
+    setSizeScale(stored.scale);
+    setBold(stored.bold);
+    if (stored.size === "massive") setMassivePx((p) => p ?? 40);
+  }, [isReadOnly, styleKey, getStyle]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const inputRef    = useRef<HTMLInputElement>(null);
   const outerRef    = useRef<HTMLElement>(null);
   const measureRef  = useRef<HTMLSpanElement>(null);
+
+  const persistStyle = useCallback((s: TextSize, sc: number, b: boolean) => {
+    if (styleKey) setStyle(styleKey, { size: s, scale: sc, bold: b });
+  }, [styleKey, setStyle]);
+
+  const handleSetSize = (s: TextSize) => {
+    setSize(s);
+    if (s !== "massive") setMassivePx(null);
+    persistStyle(s, sizeScale, bold);
+  };
+  const handleSetScale = (sc: number) => {
+    setSizeScale(sc);
+    persistStyle(size, sc, bold);
+  };
+  const handleSetBold = (b: boolean) => {
+    setBold(b);
+    persistStyle(size, sizeScale, b);
+  };
 
   const calcMassive = useCallback(() => {
     const measure = measureRef.current;
     if (!measure) return;
     const tw = measure.offsetWidth;
     if (tw === 0) return;
-
-    // "부모 너비를 채우는" 첫 번째 블록 요소를 컨테이너로 사용
-    // → flex items-center 안에서 콘텐츠 크기로 수축된 div는 부모 대비 비율이 낮아서 건너뜀
     let el: HTMLElement | null = outerRef.current?.parentElement ?? null;
     while (el) {
       if (el.hasAttribute("data-preview-root")) break;
       const d = window.getComputedStyle(el).display;
       if (!d.startsWith("inline")) {
         const pw = el.parentElement?.offsetWidth ?? 0;
-        if (pw > 0 && el.offsetWidth >= pw * 0.8) break; // 부모의 80% 이상 = 진짜 컨테이너
+        if (pw > 0 && el.offsetWidth >= pw * 0.8) break;
       }
       el = el.parentElement;
     }
@@ -94,10 +148,7 @@ export default function EditableText({
   useLayoutEffect(() => {
     if (editing) {
       setDraft(value);
-      setTimeout(() => {
-        textareaRef.current?.focus();
-        inputRef.current?.focus();
-      }, 0);
+      setTimeout(() => { textareaRef.current?.focus(); }, 0);
     }
   }, [editing]);
 
@@ -109,17 +160,27 @@ export default function EditableText({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") { setDraft(value); setEditing(false); }
-    if (!multiline && e.key === "Enter") { e.preventDefault(); commit(); }
-    if (multiline && e.key === "Enter" && e.shiftKey) { e.preventDefault(); commit(); }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); commit(); }
+    // Shift+Enter: 기본 동작(줄바꿈) 허용
   };
 
-  // 실제 적용 폰트 크기 계산
-  const computedFontSize =
-    size === "massive" && massivePx
-      ? massivePx * sizeScale
-      : BASE_PX[size] * sizeScale;
+  // readOnly 모드에서는 overrides 원본 객체에서 직접 파싱 — 클로저 타이밍 문제 없음
+  const liveStyle: TextStyleData | undefined = (() => {
+    if (!isReadOnly || !styleKey || !ctxOverrides) return undefined;
+    const raw = ctxOverrides[`__s_${styleKey}`];
+    if (!raw) return undefined;
+    try { return JSON.parse(raw) as TextStyleData; } catch { return undefined; }
+  })();
+  const displaySize = liveStyle?.size ?? size;
+  const displayScale = liveStyle?.scale ?? sizeScale;
+  const displayBold = liveStyle?.bold ?? bold;
 
-  const boldClass = bold ? "font-black" : "";
+  const computedFontSize =
+    displaySize === "massive" && massivePx
+      ? massivePx * displayScale
+      : BASE_PX[displaySize] * displayScale;
+
+  const boldClass = displayBold ? "font-black" : "";
   const inputStyle: React.CSSProperties = {
     fontSize: `${BASE_PX[size] * sizeScale}px`,
     lineHeight: 1.4,
@@ -139,18 +200,18 @@ export default function EditableText({
     </span>
   );
 
-  if (editing) {
+  // 편집 중 (readOnly면 진입 불가)
+  if (editing && !isReadOnly) {
     return (
       <>
         {measureSpan}
         <div ref={outerRef as React.Ref<HTMLDivElement>} className="w-full">
-          {/* 툴바 */}
           <div className="flex items-center gap-0.5 mb-1.5 px-1 py-0.5 bg-white border border-gray-200 rounded-lg shadow-sm w-fit flex-wrap">
             {VISIBLE_SIZES.map((s) => (
               <button
                 key={s}
                 type="button"
-                onMouseDown={(e) => { e.preventDefault(); setSize(s); }}
+                onMouseDown={(e) => { e.preventDefault(); handleSetSize(s); }}
                 className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
                   size === s
                     ? "bg-[#0B1F4D] text-white"
@@ -163,24 +224,23 @@ export default function EditableText({
               </button>
             ))}
             <div className="w-px h-3.5 bg-gray-200 mx-0.5" />
-            {/* ±20% 조절 */}
             <button
               type="button"
-              onMouseDown={(e) => { e.preventDefault(); setSizeScale((p) => Math.max(0.8, +(p - 0.2).toFixed(1))); }}
-              disabled={sizeScale <= 0.8}
+              onMouseDown={(e) => { e.preventDefault(); handleSetScale(Math.max(0.6, +((sizeScale - 0.05).toFixed(2)))); }}
+              disabled={sizeScale <= 0.6}
               className="px-1.5 py-0.5 rounded text-xs font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30"
             >−</button>
             <span className="text-xs text-gray-400 w-8 text-center">{Math.round(sizeScale * 100)}%</span>
             <button
               type="button"
-              onMouseDown={(e) => { e.preventDefault(); setSizeScale((p) => Math.min(1.2, +(p + 0.2).toFixed(1))); }}
-              disabled={sizeScale >= 1.2}
+              onMouseDown={(e) => { e.preventDefault(); handleSetScale(Math.min(1.6, +((sizeScale + 0.05).toFixed(2)))); }}
+              disabled={sizeScale >= 1.6}
               className="px-1.5 py-0.5 rounded text-xs font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30"
             >+</button>
             <div className="w-px h-3.5 bg-gray-200 mx-0.5" />
             <button
               type="button"
-              onMouseDown={(e) => { e.preventDefault(); setBold(!bold); }}
+              onMouseDown={(e) => { e.preventDefault(); handleSetBold(!bold); }}
               className={`px-2 py-0.5 rounded text-xs font-black transition-colors ${bold ? "bg-[#0B1F4D] text-white" : "text-gray-500 hover:bg-gray-100"}`}
             >B</button>
             <div className="w-px h-3.5 bg-gray-200 mx-0.5" />
@@ -191,30 +251,17 @@ export default function EditableText({
             >완료</button>
           </div>
 
-          {multiline ? (
-            <textarea
-              ref={textareaRef}
-              value={draft}
-              rows={3}
-              onChange={(e) => setDraft(e.target.value)}
-              onBlur={commit}
-              onKeyDown={handleKeyDown}
-              style={inputStyle}
-              className={`w-full resize-none bg-white border border-[#0B1F4D]/40 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#0B1F4D] focus:ring-1 focus:ring-[#0B1F4D]/20 ${boldClass}`}
-              placeholder={placeholder}
-            />
-          ) : (
-            <input
-              ref={inputRef}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onBlur={commit}
-              onKeyDown={handleKeyDown}
-              style={inputStyle}
-              className={`w-full bg-white border border-[#0B1F4D]/40 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#0B1F4D] focus:ring-1 focus:ring-[#0B1F4D]/20 ${boldClass}`}
-              placeholder={placeholder}
-            />
-          )}
+          <textarea
+            ref={textareaRef}
+            value={draft}
+            rows={multiline ? 3 : 1}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={handleKeyDown}
+            style={inputStyle}
+            className={`w-full resize-none bg-white border border-[#0B1F4D]/40 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#0B1F4D] focus:ring-1 focus:ring-[#0B1F4D]/20 ${boldClass}`}
+            placeholder={placeholder}
+          />
         </div>
       </>
     );
@@ -225,8 +272,8 @@ export default function EditableText({
       {measureSpan}
       <span
         ref={outerRef as React.Ref<HTMLSpanElement>}
-        onClick={() => setEditing(true)}
-        className={`cursor-text ${boldClass} ${className}`}
+        onClick={isReadOnly ? undefined : () => setEditing(true)}
+        className={`${isReadOnly ? "" : "cursor-text"} ${boldClass} ${className}`}
         style={{
           ...style,
           fontSize: `${computedFontSize}px`,

@@ -6,7 +6,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
   sectionConfig?: SectionConfig;
 }
 
@@ -19,7 +19,7 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
   const isHidden = (id: string) => sectionConfig?.hiddenElements?.includes(id) ?? false;
 
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   return (
     <div className="space-y-10">
@@ -29,16 +29,19 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
         <div className="flex items-center justify-center gap-2 mb-2">
           <AlertTriangle className="h-6 w-6 text-red-200" />
           <EditableText value={ov.killer_badge ?? "킬러 문항"} onChange={(v) => setText("killer_badge", v)}
+            styleKey="killer_badge"
             className="text-base font-bold text-red-200 uppercase tracking-widest" defaultSize="base" />
         </div>
         <EditableText
           value={ov.killerNums ?? killerSummary.killerQuestionNumbers.join(" · ") + "번"}
           onChange={(v) => setText("killerNums", v)}
+          styleKey="killerNums"
           className="font-black text-white block" defaultSize="massive"
         />
         <EditableText
           value={ov.killer_subtitle ?? `이 ${killerSummary.killerQuestionNumbers.length}문제가 등급을 가른다`}
           onChange={(v) => setText("killer_subtitle", v)}
+          styleKey="killer_subtitle"
           className="text-xl font-bold text-red-200" defaultSize="xl"
         />
       </div>
@@ -47,26 +50,26 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
       {!isHidden("killer_score_cards") && <div className="grid grid-cols-2 gap-4">
         <div className="rounded-3xl bg-red-50 border-2 border-red-200 p-8 text-center space-y-2">
           <EditableText value={ov.killer_total_label ?? "킬러 총 배점"} onChange={(v) => setText("killer_total_label", v)}
-            className="text-base font-bold text-red-400" defaultSize="base" />
+            styleKey="killer_total_label" className="text-base font-bold text-red-400" defaultSize="base" />
           <EditableText value={ov.killer_total_val ?? `${killerSummary.totalKillerScore}점`} onChange={(v) => setText("killer_total_val", v)}
-            className="text-5xl font-black text-[#DC2626] block" defaultSize="massive" />
+            styleKey="killer_total_val" className="text-5xl font-black text-[#DC2626] block" defaultSize="massive" />
           <EditableText value={ov.killer_total_sub ?? `전체의 ${pct}%`} onChange={(v) => setText("killer_total_sub", v)}
-            className="text-base text-red-400" defaultSize="base" />
+            styleKey="killer_total_sub" className="text-base text-red-400" defaultSize="base" />
         </div>
         <div className="rounded-3xl bg-gray-50 border-2 border-gray-200 p-8 text-center space-y-2">
           <EditableText value={ov.killer_max_label ?? "놓쳤을 때 최고점"} onChange={(v) => setText("killer_max_label", v)}
-            className="text-base font-bold text-gray-400" defaultSize="base" />
+            styleKey="killer_max_label" className="text-base font-bold text-gray-400" defaultSize="base" />
           <EditableText value={ov.killer_max_val ?? `${killerSummary.maxScoreIfMissed}점`} onChange={(v) => setText("killer_max_val", v)}
-            className="text-5xl font-black text-gray-700 block" defaultSize="massive" />
+            styleKey="killer_max_val" className="text-5xl font-black text-gray-700 block" defaultSize="massive" />
           <EditableText value={ov.killer_max_sub ?? "90점 돌파 불가"} onChange={(v) => setText("killer_max_sub", v)}
-            className="text-base text-gray-400" defaultSize="base" />
+            styleKey="killer_max_sub" className="text-base text-gray-400" defaultSize="base" />
         </div>
       </div>}
 
       {/* ── 배점 구조 바 ── */}
       {!isHidden("killer_score_bar") && <div className="space-y-3">
         <EditableText value={ov.killer_structure_label ?? "배점 구조"} onChange={(v) => setText("killer_structure_label", v)}
-          className="text-lg font-black text-gray-400 uppercase tracking-wider block" defaultSize="lg" />
+          styleKey="killer_structure_label" className="text-lg font-black text-gray-400 uppercase tracking-wider block" defaultSize="lg" />
         <div className="rounded-2xl overflow-hidden h-16 flex">
           <div className="flex items-center justify-center text-white font-black text-base"
             style={{ width: `${basicPct}%`, background: "linear-gradient(90deg, #0B1F4D, #1a3a7a)" }}>
@@ -88,11 +91,12 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-6 w-6 text-[#F97316] flex-shrink-0" />
           <EditableText value={ov.killer_analysis_label ?? "분석"} onChange={(v) => setText("killer_analysis_label", v)}
-            className="text-base font-bold text-[#F97316] uppercase tracking-wider" defaultSize="base" />
+            styleKey="killer_analysis_label" className="text-base font-bold text-[#F97316] uppercase tracking-wider" defaultSize="base" />
         </div>
         <EditableText
           value={ov.killer_message ?? killerSummary.message}
           onChange={(v) => setText("killer_message", v)}
+          styleKey="killer_message"
           multiline defaultSize="lg" className="text-white leading-relaxed"
         />
       </div>}
@@ -103,6 +107,7 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
           <EditableText
             value={ov.killer_conclusion ?? `90점 돌파는 이 ${killerSummary.killerQuestionNumbers.length}문제 정복 없이는\n구조적으로 불가능합니다.`}
             onChange={(v) => setText("killer_conclusion", v)}
+            styleKey="killer_conclusion"
             multiline defaultSize="xl" className="font-black text-white leading-snug block"
           />
         </div>

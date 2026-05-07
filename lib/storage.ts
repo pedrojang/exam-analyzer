@@ -19,9 +19,7 @@ export function saveReport(report: ExamAnalysis): void {
   if (typeof window === "undefined") return;
   try {
     const existing = loadReports().filter((r) => !ALL_MOCK_DATA.find((m) => m.id === r.id));
-    const updated = report.id.startsWith("mock-")
-      ? existing
-      : [...existing.filter((r) => r.id !== report.id), { ...report, updatedAt: new Date().toISOString() }];
+    const updated = [...existing.filter((r) => r.id !== report.id), { ...report, updatedAt: new Date().toISOString() }];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch {
     // ignore storage errors
@@ -40,9 +38,10 @@ export function saveNewReport(report: ExamAnalysis): void {
 }
 
 export function getReport(id: string): ExamAnalysis | null {
-  const mock = ALL_MOCK_DATA.find((m) => m.id === id);
-  if (mock) return mock;
-  return loadReports().find((r) => r.id === id) ?? null;
+  // localStorage 저장본 우선 (편집 내용 보존)
+  const saved = loadReports().find((r) => r.id === id);
+  if (saved) return saved;
+  return ALL_MOCK_DATA.find((m) => m.id === id) ?? null;
 }
 
 export function deleteReport(id: string): void {

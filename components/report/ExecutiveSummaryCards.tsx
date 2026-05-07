@@ -6,7 +6,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
   sectionConfig?: SectionConfig;
 }
 
@@ -20,8 +20,7 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
   const insightCount = sectionConfig?.itemCount ?? analysis.executiveSummary.length;
 
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
-
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   return (
     <div className="space-y-12">
@@ -31,12 +30,14 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
         <EditableText
           value={ov.exec_diff_label ?? "전반 난이도"}
           onChange={(v) => setText("exec_diff_label", v)}
+          styleKey="exec_diff_label"
           className="text-base font-bold text-white/50 uppercase tracking-widest block"
           defaultSize="base"
         />
         <EditableText
           value={ov.exec_diff_value ?? analysis.overallDifficulty}
           onChange={(v) => setText("exec_diff_value", v)}
+          styleKey="exec_diff_value"
           className="font-black block"
           style={{ color: diffColor }}
           defaultSize="massive"
@@ -45,6 +46,7 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
           <EditableText
             value={ov.exec_perceived ?? analysis.perceivedDifficulty}
             onChange={(v) => setText("exec_perceived", v)}
+            styleKey="exec_perceived"
             className="text-xl font-bold text-white/80"
             defaultSize="xl"
           />
@@ -56,6 +58,7 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
         <EditableText
           value={ov.exec_temp_label ?? "수준별 체감 온도차"}
           onChange={(v) => setText("exec_temp_label", v)}
+          styleKey="exec_temp_label"
           className="text-lg font-black text-gray-400 uppercase tracking-wider block"
           defaultSize="lg"
         />
@@ -66,12 +69,14 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
             <EditableText
               value={ov.exec_upper_badge ?? "상위권"}
               onChange={(v) => setText("exec_upper_badge", v)}
+              styleKey="exec_upper_badge"
               className="rounded-full bg-[#0B1F4D] text-white text-sm font-black px-4 py-1"
               defaultSize="sm"
             />
             <EditableText
               value={ov.exec_upper_tag ?? "기회"}
               onChange={(v) => setText("exec_upper_tag", v)}
+              styleKey="exec_upper_tag"
               className="text-base font-bold text-[#0B1F4D]"
               defaultSize="base"
             />
@@ -79,12 +84,14 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
           <EditableText
             value={ov.exec_upper_headline ?? "예상보다 쉬웠다"}
             onChange={(v) => setText("exec_upper_headline", v)}
+            styleKey="exec_upper_headline"
             className="text-2xl font-black text-[#0B1F4D] leading-snug block"
             defaultSize="2xl"
           />
           <EditableText
             value={ov.exec_upper_body ?? `킬러 ${killerNums}번이 모두 학교 프린트 연계 — 프린트 완성자에겐 시간 단축 구조`}
             onChange={(v) => setText("exec_upper_body", v)}
+            styleKey="exec_upper_body"
             multiline
             className="text-base text-gray-600 leading-relaxed"
             defaultSize="base"
@@ -97,12 +104,14 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
             <EditableText
               value={ov.exec_lower_badge ?? "중·하위권"}
               onChange={(v) => setText("exec_lower_badge", v)}
+              styleKey="exec_lower_badge"
               className="rounded-full bg-[#DC2626] text-white text-sm font-black px-4 py-1"
               defaultSize="sm"
             />
             <EditableText
               value={ov.exec_lower_tag ?? "위기"}
               onChange={(v) => setText("exec_lower_tag", v)}
+              styleKey="exec_lower_tag"
               className="text-base font-bold text-[#DC2626]"
               defaultSize="base"
             />
@@ -110,12 +119,14 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
           <EditableText
             value={ov.exec_lower_headline ?? "예상보다 어려웠다"}
             onChange={(v) => setText("exec_lower_headline", v)}
+            styleKey="exec_lower_headline"
             className="text-2xl font-black text-[#DC2626] leading-snug block"
             defaultSize="2xl"
           />
           <EditableText
             value={ov.exec_lower_body ?? "교과서 기본 비중은 낮고, 후반 킬러 구간에서 시간이 급격히 부족해짐"}
             onChange={(v) => setText("exec_lower_body", v)}
+            styleKey="exec_lower_body"
             multiline
             className="text-base text-gray-600 leading-relaxed"
             defaultSize="base"
@@ -129,6 +140,7 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
           <EditableText
             value={ov.exec_insight_label ?? "핵심 인사이트"}
             onChange={(v) => setText("exec_insight_label", v)}
+            styleKey="exec_insight_label"
             className="text-lg font-black text-gray-400 uppercase tracking-wider block"
             defaultSize="lg"
           />
@@ -149,11 +161,13 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
                   </span>
                   <EditableText value={ov[titleKey] ?? (DEFAULTS[i]?.title ?? `인사이트 ${i + 1}`)}
                     onChange={(v) => setText(titleKey, v)}
+                    styleKey={titleKey}
                     className="text-xl font-black" style={{ color } as React.CSSProperties} defaultSize="xl" />
                 </div>
                 <EditableText
                   value={ov[`exec_summary_${i}`] ?? analysis.executiveSummary[i] ?? ""}
                   onChange={(v) => setText(`exec_summary_${i}`, v)}
+                  styleKey={`exec_summary_${i}`}
                   multiline defaultSize="base" className="text-gray-700 leading-relaxed"
                 />
               </div>
@@ -165,16 +179,16 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
       {/* ── 핵심 수치 요약 ── */}
       {!isHidden("exec_stat_summary") && <div className="grid grid-cols-1 gap-4">
         <div className="rounded-3xl bg-gray-50 border border-gray-200 p-8 flex items-center justify-between">
-          <EditableText value={ov.exec_stat_unit_label ?? "핵심 단원"} onChange={(v) => setText("exec_stat_unit_label", v)} className="text-lg font-bold text-gray-500" defaultSize="lg" />
-          <EditableText value={ov.exec_stat_unit_val ?? (topUnit?.unit ?? "—")} onChange={(v) => setText("exec_stat_unit_val", v)} className="text-2xl font-black text-[#0B1F4D]" defaultSize="2xl" />
+          <EditableText value={ov.exec_stat_unit_label ?? "핵심 단원"} onChange={(v) => setText("exec_stat_unit_label", v)} styleKey="exec_stat_unit_label" className="text-lg font-bold text-gray-500" defaultSize="lg" />
+          <EditableText value={ov.exec_stat_unit_val ?? (topUnit?.unit ?? "—")} onChange={(v) => setText("exec_stat_unit_val", v)} styleKey="exec_stat_unit_val" className="text-2xl font-black text-[#0B1F4D]" defaultSize="2xl" />
         </div>
         <div className="rounded-3xl bg-red-50 border border-red-200 p-8 flex items-center justify-between">
-          <EditableText value={ov.exec_stat_killer_label ?? "킬러 문항"} onChange={(v) => setText("exec_stat_killer_label", v)} className="text-lg font-bold text-gray-500" defaultSize="lg" />
-          <EditableText value={ov.exec_stat_killer_val ?? `${killerNums}번`} onChange={(v) => setText("exec_stat_killer_val", v)} className="text-2xl font-black text-[#DC2626]" defaultSize="2xl" />
+          <EditableText value={ov.exec_stat_killer_label ?? "킬러 문항"} onChange={(v) => setText("exec_stat_killer_label", v)} styleKey="exec_stat_killer_label" className="text-lg font-bold text-gray-500" defaultSize="lg" />
+          <EditableText value={ov.exec_stat_killer_val ?? `${killerNums}번`} onChange={(v) => setText("exec_stat_killer_val", v)} styleKey="exec_stat_killer_val" className="text-2xl font-black text-[#DC2626]" defaultSize="2xl" />
         </div>
         <div className="rounded-3xl bg-gray-50 border border-gray-200 p-8 flex items-center justify-between">
-          <EditableText value={ov.exec_stat_score_label ?? "킬러 배점"} onChange={(v) => setText("exec_stat_score_label", v)} className="text-lg font-bold text-gray-500" defaultSize="lg" />
-          <EditableText value={ov.exec_stat_score_val ?? `${analysis.killerSummary.totalKillerScore}점`} onChange={(v) => setText("exec_stat_score_val", v)} className="text-2xl font-black text-[#DC2626]" defaultSize="2xl" />
+          <EditableText value={ov.exec_stat_score_label ?? "킬러 배점"} onChange={(v) => setText("exec_stat_score_label", v)} styleKey="exec_stat_score_label" className="text-lg font-bold text-gray-500" defaultSize="lg" />
+          <EditableText value={ov.exec_stat_score_val ?? `${analysis.killerSummary.totalKillerScore}점`} onChange={(v) => setText("exec_stat_score_val", v)} styleKey="exec_stat_score_val" className="text-2xl font-black text-[#DC2626]" defaultSize="2xl" />
         </div>
       </div>}
     </div>

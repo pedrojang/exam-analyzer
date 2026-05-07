@@ -7,7 +7,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
 }
 
 export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
@@ -15,8 +15,7 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
   const killers = analysis.questions.filter((q) => q.isKiller);
 
   const setText = (key: string, val: string) =>
-    onUpdate?.({ ...analysis, overrides: { ...ov, [key]: val } });
-
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   return (
     <div className="space-y-6">
@@ -50,6 +49,7 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                 <EditableText
                   value={ov[`q_${q.id}_required_thinking`] ?? q.requiredThinking}
                   onChange={(v) => setText(`q_${q.id}_required_thinking`, v)}
+                  styleKey={`q_${q.id}_required_thinking`}
                   multiline defaultSize="sm" className="text-gray-700"
                 />
               </div>
@@ -62,6 +62,7 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                 <EditableText
                   value={ov[`q_${q.id}_likely_trap`] ?? q.likelyTrap}
                   onChange={(v) => setText(`q_${q.id}_likely_trap`, v)}
+                  styleKey={`q_${q.id}_likely_trap`}
                   multiline defaultSize="sm" className="text-amber-800"
                 />
               </div>
@@ -74,6 +75,7 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                 <EditableText
                   value={ov[`q_${q.id}_student_panic_reason`] ?? q.studentPanicReason}
                   onChange={(v) => setText(`q_${q.id}_student_panic_reason`, v)}
+                  styleKey={`q_${q.id}_student_panic_reason`}
                   multiline defaultSize="sm" className="text-red-700"
                 />
               </div>
@@ -86,6 +88,7 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
                 <EditableText
                   value={ov[strategyKey] ?? `${q.requiredThinking}에 대한 집중 훈련이 필요합니다. 유사 유형 문제를 반복하여 사고 패턴을 체화하세요.`}
                   onChange={(v) => setText(strategyKey, v)}
+                  styleKey={strategyKey}
                   multiline defaultSize="sm" className="text-blue-800"
                 />
               </div>

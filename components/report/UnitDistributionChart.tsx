@@ -44,16 +44,16 @@ export default function UnitDistributionChart({ analysis }: Props) {
 
   return (
     <div className="space-y-6">
-      <ResponsiveContainer width="100%" height={340}>
-        <PieChart>
+      <ResponsiveContainer width="100%" height={320}>
+        <PieChart margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
             labelLine={false}
             label={renderCustomLabel}
-            outerRadius={150}
-            innerRadius={60}
+            outerRadius={120}
+            innerRadius={52}
             dataKey="value"
           >
             {data.map((_, i) => (

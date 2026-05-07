@@ -7,7 +7,7 @@ import EditableText from "@/components/ui/EditableText";
 
 interface Props {
   analysis: ExamAnalysis;
-  onUpdate?: (updated: ExamAnalysis) => void;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
   sectionConfig?: SectionConfig;
 }
 
@@ -19,14 +19,11 @@ const HOOK_LINES: Record<string, string> = {
   "하":   "기본기만 갖춰도 고득점이 가능한 구조다.",
 };
 
-const set = (analysis: ExamAnalysis, key: string, val: string): ExamAnalysis => ({
-  ...analysis,
-  overrides: { ...analysis.overrides, [key]: val },
-});
-
 export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props) {
   const diffColor = DIFFICULTY_COLORS[analysis.overallDifficulty];
   const isHidden = (id: string) => sectionConfig?.hiddenElements?.includes(id) ?? false;
+  const setText = (key: string, val: string) =>
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
 
   const hookLine    = analysis.overrides?.heroHook     ?? HOOK_LINES[analysis.overallDifficulty] ?? "시험을 지배하는 자가 등급을 지배한다.";
   const subtitle    = analysis.overrides?.heroSubtitle ?? "난이도 상승의 원인 분석 및\n90점 이상 고득점 달성 전략";
@@ -55,7 +52,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
           <div className="text-[#F97316] font-extrabold text-lg uppercase tracking-widest mb-3">
             <EditableText
               value={topLabel}
-              onChange={(val) => onUpdate?.(set(analysis, "heroTopLabel", val))}
+              onChange={(val) => setText("heroTopLabel", val)}
+              styleKey="heroTopLabel"
               className="text-[#F97316]"
               defaultSize="lg"
             />
@@ -63,7 +61,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
           <div className="font-black text-white mb-3 leading-none">
             <EditableText
               value={schoolShort}
-              onChange={(val) => onUpdate?.(set(analysis, "heroSchool", val))}
+              onChange={(val) => setText("heroSchool", val)}
+              styleKey="heroSchool"
               className="text-white"
               defaultSize="massive"
             />
@@ -71,7 +70,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
           {!isHidden("hero_meta") && (
             <EditableText
               value={analysis.overrides?.heroMeta ?? `${analysis.schoolName} | ${analysis.grade} | ${analysis.subject} | ${analysis.examName}`}
-              onChange={(val) => onUpdate?.(set(analysis, "heroMeta", val))}
+              onChange={(val) => setText("heroMeta", val)}
+              styleKey="heroMeta"
               className="text-white/50 text-base"
               defaultSize="base"
             />
@@ -83,7 +83,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
       <div className="rounded-b-2xl bg-white border border-t-0 border-gray-200 px-8 md:px-12 py-10 shadow-sm">
         <EditableText
           value={analysis.overrides?.heroReportLabel ?? `${analysis.schoolName} ${analysis.grade} ${analysis.subject} ${analysis.examName} 정밀 분석 보고서`}
-          onChange={(val) => onUpdate?.(set(analysis, "heroReportLabel", val))}
+          onChange={(val) => setText("heroReportLabel", val)}
+          styleKey="heroReportLabel"
           className="text-xs font-semibold text-gray-400 tracking-widest uppercase block mb-3"
           defaultSize="xs"
         />
@@ -91,7 +92,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
         <h1 className="text-4xl md:text-5xl font-black text-[#111827] leading-tight mb-4">
           <EditableText
             value={subtitle}
-            onChange={(val) => onUpdate?.(set(analysis, "heroSubtitle", val))}
+            onChange={(val) => setText("heroSubtitle", val)}
+            styleKey="heroSubtitle"
             multiline
             className="text-[#0B1F4D]"
             defaultSize="2xl"
@@ -100,7 +102,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
 
         <EditableText
           value={analysis.overrides?.heroRange ?? `${analysis.unitDistribution[0]?.unit ?? "주요 단원"}의 연산 ~ ${analysis.unitDistribution[1]?.unit ?? "핵심 단원"} | 출제일: ${new Date(analysis.createdAt).toLocaleDateString("ko-KR")}`}
-          onChange={(val) => onUpdate?.(set(analysis, "heroRange", val))}
+          onChange={(val) => setText("heroRange", val)}
+          styleKey="heroRange"
           className="text-base text-gray-400 block mb-1"
           defaultSize="base"
         />
@@ -119,12 +122,14 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
               <div key={stat.label} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
                 <EditableText
                   value={analysis.overrides?.[`hero_stat_label_${i}`] ?? stat.label}
-                  onChange={(val) => onUpdate?.(set(analysis, `hero_stat_label_${i}`, val))}
+                  onChange={(val) => setText(`hero_stat_label_${i}`, val)}
+                  styleKey={`hero_stat_label_${i}`}
                   className="text-sm text-gray-400 block mb-2" defaultSize="sm"
                 />
                 <EditableText
                   value={analysis.overrides?.[`hero_stat_val_${i}`] ?? stat.value}
-                  onChange={(val) => onUpdate?.(set(analysis, `hero_stat_val_${i}`, val))}
+                  onChange={(val) => setText(`hero_stat_val_${i}`, val)}
+                  styleKey={`hero_stat_val_${i}`}
                   className="font-black block" style={{ color: stat.color }} defaultSize="2xl"
                 />
               </div>
@@ -140,7 +145,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
             <div className="text-4xl md:text-5xl font-black text-white leading-snug mb-4">
               <EditableText
                 value={hookLine}
-                onChange={(val) => onUpdate?.(set(analysis, "heroHook", val))}
+                onChange={(val) => setText("heroHook", val)}
+                styleKey="heroHook"
                 multiline
                 className="text-white"
                 defaultSize="3xl"
@@ -151,7 +157,8 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
               <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: diffColor }} />
               <EditableText
                 value={analysis.overrides?.heroDiffBadge ?? `전반 난이도: ${analysis.overallDifficulty} · 체감: ${analysis.perceivedDifficulty}`}
-                onChange={(val) => onUpdate?.(set(analysis, "heroDiffBadge", val))}
+                onChange={(val) => setText("heroDiffBadge", val)}
+                styleKey="heroDiffBadge"
                 className="text-base text-white/80 font-medium"
                 defaultSize="base"
               />
