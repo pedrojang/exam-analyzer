@@ -42,14 +42,18 @@ export default function TypeScoreDistributionChart({ analysis, onUpdate }: Props
         <div className="rounded-xl bg-[#0B1F4D]/5 border border-[#0B1F4D]/10 p-4 text-center">
           <EditableText value={ov.type_obj_label ?? "객관식 총점"} onChange={(v) => setText("type_obj_label", v)}
             className="text-xs text-gray-500 block mb-1" defaultSize="xs" />
-          <p className="text-2xl font-bold text-[#0B1F4D]">{analysis.typeScoreDistribution.find((d) => d.type === "객관식")?.score ?? 0}점</p>
-          <p className="text-xs text-gray-400 mt-1">{analysis.objectiveCount}문항</p>
+          <EditableText value={ov.type_obj_score ?? `${analysis.typeScoreDistribution.find((d) => d.type === "객관식")?.score ?? 0}점`}
+            onChange={(v) => setText("type_obj_score", v)} className="text-2xl font-bold text-[#0B1F4D] block" defaultSize="2xl" />
+          <EditableText value={ov.type_obj_count ?? `${analysis.objectiveCount}문항`}
+            onChange={(v) => setText("type_obj_count", v)} className="text-xs text-gray-400 block mt-1" defaultSize="xs" />
         </div>
         <div className="rounded-xl bg-[#F97316]/5 border border-[#F97316]/10 p-4 text-center">
           <EditableText value={ov.type_desc_label ?? "서술형 총점"} onChange={(v) => setText("type_desc_label", v)}
             className="text-xs text-gray-500 block mb-1" defaultSize="xs" />
-          <p className="text-2xl font-bold text-[#F97316]">{analysis.typeScoreDistribution.find((d) => d.type === "서술형")?.score ?? 0}점</p>
-          <p className="text-xs text-gray-400 mt-1">{analysis.descriptiveCount}문항</p>
+          <EditableText value={ov.type_desc_score ?? `${analysis.typeScoreDistribution.find((d) => d.type === "서술형")?.score ?? 0}점`}
+            onChange={(v) => setText("type_desc_score", v)} className="text-2xl font-bold text-[#F97316] block" defaultSize="2xl" />
+          <EditableText value={ov.type_desc_count ?? `${analysis.descriptiveCount}문항`}
+            onChange={(v) => setText("type_desc_count", v)} className="text-xs text-gray-400 block mt-1" defaultSize="xs" />
         </div>
       </div>
 

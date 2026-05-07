@@ -115,10 +115,18 @@ export default function ReportHero({ analysis, onUpdate, sectionConfig }: Props)
         {/* 핵심 통계 카드 */}
         {!isHidden("hero_stats") && (
           <div className="grid grid-cols-2 gap-4 mb-8">
-            {stats.map((stat) => (
+            {stats.map((stat, i) => (
               <div key={stat.label} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
-                <p className="text-sm text-gray-400 mb-2">{stat.label}</p>
-                <p className="text-4xl font-black" style={{ color: stat.color }}>{stat.value}</p>
+                <EditableText
+                  value={analysis.overrides?.[`hero_stat_label_${i}`] ?? stat.label}
+                  onChange={(val) => onUpdate?.(set(analysis, `hero_stat_label_${i}`, val))}
+                  className="text-sm text-gray-400 block mb-2" defaultSize="sm"
+                />
+                <EditableText
+                  value={analysis.overrides?.[`hero_stat_val_${i}`] ?? stat.value}
+                  onChange={(val) => onUpdate?.(set(analysis, `hero_stat_val_${i}`, val))}
+                  className="font-black block" style={{ color: stat.color }} defaultSize="2xl"
+                />
               </div>
             ))}
           </div>

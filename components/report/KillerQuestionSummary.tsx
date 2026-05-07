@@ -48,14 +48,16 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
         <div className="rounded-3xl bg-red-50 border-2 border-red-200 p-8 text-center space-y-2">
           <EditableText value={ov.killer_total_label ?? "킬러 총 배점"} onChange={(v) => setText("killer_total_label", v)}
             className="text-base font-bold text-red-400" defaultSize="base" />
-          <p className="text-5xl font-black text-[#DC2626]">{killerSummary.totalKillerScore}<span className="text-2xl">점</span></p>
+          <EditableText value={ov.killer_total_val ?? `${killerSummary.totalKillerScore}점`} onChange={(v) => setText("killer_total_val", v)}
+            className="text-5xl font-black text-[#DC2626] block" defaultSize="massive" />
           <EditableText value={ov.killer_total_sub ?? `전체의 ${pct}%`} onChange={(v) => setText("killer_total_sub", v)}
             className="text-base text-red-400" defaultSize="base" />
         </div>
         <div className="rounded-3xl bg-gray-50 border-2 border-gray-200 p-8 text-center space-y-2">
           <EditableText value={ov.killer_max_label ?? "놓쳤을 때 최고점"} onChange={(v) => setText("killer_max_label", v)}
             className="text-base font-bold text-gray-400" defaultSize="base" />
-          <p className="text-5xl font-black text-gray-700">{killerSummary.maxScoreIfMissed}<span className="text-2xl">점</span></p>
+          <EditableText value={ov.killer_max_val ?? `${killerSummary.maxScoreIfMissed}점`} onChange={(v) => setText("killer_max_val", v)}
+            className="text-5xl font-black text-gray-700 block" defaultSize="massive" />
           <EditableText value={ov.killer_max_sub ?? "90점 돌파 불가"} onChange={(v) => setText("killer_max_sub", v)}
             className="text-base text-gray-400" defaultSize="base" />
         </div>

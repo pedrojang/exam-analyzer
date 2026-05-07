@@ -166,15 +166,15 @@ export default function ExecutiveSummaryCards({ analysis, onUpdate, sectionConfi
       {!isHidden("exec_stat_summary") && <div className="grid grid-cols-1 gap-4">
         <div className="rounded-3xl bg-gray-50 border border-gray-200 p-8 flex items-center justify-between">
           <EditableText value={ov.exec_stat_unit_label ?? "핵심 단원"} onChange={(v) => setText("exec_stat_unit_label", v)} className="text-lg font-bold text-gray-500" defaultSize="lg" />
-          <p className="text-2xl font-black text-[#0B1F4D]">{topUnit?.unit}</p>
+          <EditableText value={ov.exec_stat_unit_val ?? (topUnit?.unit ?? "—")} onChange={(v) => setText("exec_stat_unit_val", v)} className="text-2xl font-black text-[#0B1F4D]" defaultSize="2xl" />
         </div>
         <div className="rounded-3xl bg-red-50 border border-red-200 p-8 flex items-center justify-between">
           <EditableText value={ov.exec_stat_killer_label ?? "킬러 문항"} onChange={(v) => setText("exec_stat_killer_label", v)} className="text-lg font-bold text-gray-500" defaultSize="lg" />
-          <p className="text-2xl font-black text-[#DC2626]">{killerNums}번</p>
+          <EditableText value={ov.exec_stat_killer_val ?? `${killerNums}번`} onChange={(v) => setText("exec_stat_killer_val", v)} className="text-2xl font-black text-[#DC2626]" defaultSize="2xl" />
         </div>
         <div className="rounded-3xl bg-gray-50 border border-gray-200 p-8 flex items-center justify-between">
           <EditableText value={ov.exec_stat_score_label ?? "킬러 배점"} onChange={(v) => setText("exec_stat_score_label", v)} className="text-lg font-bold text-gray-500" defaultSize="lg" />
-          <p className="text-2xl font-black text-[#DC2626]">{analysis.killerSummary.totalKillerScore}점</p>
+          <EditableText value={ov.exec_stat_score_val ?? `${analysis.killerSummary.totalKillerScore}점`} onChange={(v) => setText("exec_stat_score_val", v)} className="text-2xl font-black text-[#DC2626]" defaultSize="2xl" />
         </div>
       </div>}
     </div>
