@@ -52,7 +52,7 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
           <EditableText value={ov.killer_total_label ?? "킬러 총 배점"} onChange={(v) => setText("killer_total_label", v)}
             styleKey="killer_total_label" className="text-base font-bold text-red-400" defaultSize="base" />
           <EditableText value={ov.killer_total_val ?? `${killerSummary.totalKillerScore}점`} onChange={(v) => setText("killer_total_val", v)}
-            styleKey="killer_total_val" className="text-5xl font-black text-[#DC2626] block" defaultSize="massive" />
+            styleKey="killer_total_val" autoFit className="text-5xl font-black text-[#DC2626] block" defaultSize="massive" />
           <EditableText value={ov.killer_total_sub ?? `전체의 ${pct}%`} onChange={(v) => setText("killer_total_sub", v)}
             styleKey="killer_total_sub" className="text-base text-red-400" defaultSize="base" />
         </div>
@@ -60,7 +60,7 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
           <EditableText value={ov.killer_max_label ?? "놓쳤을 때 최고점"} onChange={(v) => setText("killer_max_label", v)}
             styleKey="killer_max_label" className="text-base font-bold text-gray-400" defaultSize="base" />
           <EditableText value={ov.killer_max_val ?? `${killerSummary.maxScoreIfMissed}점`} onChange={(v) => setText("killer_max_val", v)}
-            styleKey="killer_max_val" className="text-5xl font-black text-gray-700 block" defaultSize="massive" />
+            styleKey="killer_max_val" autoFit className="text-5xl font-black text-gray-700 block" defaultSize="massive" />
           <EditableText value={ov.killer_max_sub ?? "90점 돌파 불가"} onChange={(v) => setText("killer_max_sub", v)}
             styleKey="killer_max_sub" className="text-base text-gray-400" defaultSize="base" />
         </div>
@@ -73,16 +73,28 @@ export default function KillerQuestionSummary({ analysis, onUpdate, sectionConfi
         <div className="rounded-2xl overflow-hidden h-16 flex">
           <div className="flex items-center justify-center text-white font-black text-base"
             style={{ width: `${basicPct}%`, background: "linear-gradient(90deg, #0B1F4D, #1a3a7a)" }}>
-            기본 {basicPct}%
+            <EditableText value={ov.killer_bar_basic ?? `기본 ${basicPct}%`}
+              onChange={(v) => setText("killer_bar_basic", v)}
+              styleKey="killer_bar_basic"
+              className="text-white font-black" defaultSize="base" />
           </div>
           <div className="flex items-center justify-center text-white font-black text-base"
             style={{ width: `${pct}%`, background: "linear-gradient(90deg, #ef4444, #DC2626)" }}>
-            킬러 {pct}%
+            <EditableText value={ov.killer_bar_killer ?? `킬러 ${pct}%`}
+              onChange={(v) => setText("killer_bar_killer", v)}
+              styleKey="killer_bar_killer"
+              className="text-white font-black" defaultSize="base" />
           </div>
         </div>
         <div className="flex justify-between text-base text-gray-400 font-medium px-1">
-          <span>기본 구간 {basicScore}점</span>
-          <span>킬러 {killerSummary.totalKillerScore}점</span>
+          <EditableText value={ov.killer_bar_basic_label ?? `기본 구간 ${basicScore}점`}
+            onChange={(v) => setText("killer_bar_basic_label", v)}
+            styleKey="killer_bar_basic_label"
+            className="text-gray-400 font-medium" defaultSize="base" />
+          <EditableText value={ov.killer_bar_killer_label ?? `킬러 ${killerSummary.totalKillerScore}점`}
+            onChange={(v) => setText("killer_bar_killer_label", v)}
+            styleKey="killer_bar_killer_label"
+            className="text-gray-400 font-medium" defaultSize="base" />
         </div>
       </div>}
 

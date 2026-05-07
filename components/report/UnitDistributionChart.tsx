@@ -9,11 +9,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { ExamAnalysis } from "@/lib/types";
+import EditableText from "@/components/ui/EditableText";
 
 const COLORS = ["#0B1F4D", "#F97316", "#3B82F6", "#22C55E", "#A855F7", "#EAB308", "#EC4899"];
 
 interface Props {
   analysis: ExamAnalysis;
+  onUpdate?: React.Dispatch<React.SetStateAction<ExamAnalysis>>;
 }
 
 const renderCustomLabel = ({
@@ -34,7 +36,11 @@ const renderCustomLabel = ({
   );
 };
 
-export default function UnitDistributionChart({ analysis }: Props) {
+export default function UnitDistributionChart({ analysis, onUpdate }: Props) {
+  const ov = analysis.overrides ?? {};
+  const setText = (key: string, val: string) =>
+    onUpdate?.((prev) => ({ ...prev, overrides: { ...(prev.overrides ?? {}), [key]: val } }));
+
   const data = analysis.unitDistribution.map((u) => ({
     name: u.unit,
     value: u.score,
@@ -76,11 +82,28 @@ export default function UnitDistributionChart({ analysis }: Props) {
             className="rounded-lg p-3 border border-gray-100"
             style={{ borderLeftColor: COLORS[i % COLORS.length], borderLeftWidth: 4 }}
           >
-            <p className="text-xs text-gray-500 mb-1">{item.name}</p>
-            <p className="text-lg font-bold" style={{ color: COLORS[i % COLORS.length] }}>
-              {item.percentage.toFixed(1)}%
-            </p>
-            <p className="text-xs text-gray-500">{item.count}문항 · {item.value}점</p>
+            <EditableText
+              value={ov[`unit_name_${i}`] ?? item.name}
+              onChange={(v) => setText(`unit_name_${i}`, v)}
+              styleKey={`unit_name_${i}`}
+              className="text-xs text-gray-500 block mb-1"
+              defaultSize="xs"
+            />
+            <EditableText
+              value={ov[`unit_pct_${i}`] ?? `${item.percentage.toFixed(1)}%`}
+              onChange={(v) => setText(`unit_pct_${i}`, v)}
+              styleKey={`unit_pct_${i}`}
+              className="text-lg font-bold block"
+              style={{ color: COLORS[i % COLORS.length] }}
+              defaultSize="lg"
+            />
+            <EditableText
+              value={ov[`unit_sub_${i}`] ?? `${item.count}문항 · ${item.value}점`}
+              onChange={(v) => setText(`unit_sub_${i}`, v)}
+              styleKey={`unit_sub_${i}`}
+              className="text-xs text-gray-500 block"
+              defaultSize="xs"
+            />
           </div>
         ))}
       </div>

@@ -44,7 +44,10 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
               <div className="rounded-xl p-4" style={{ backgroundColor: `${color}08`, border: `1px solid ${color}20` }}>
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="h-4 w-4" style={{ color }} />
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color }}>필요한 사고 단계</span>
+                  <EditableText value={ov.deepdive_label_thinking ?? "필요한 사고 단계"}
+                    onChange={(v) => setText("deepdive_label_thinking", v)}
+                    styleKey="deepdive_label_thinking"
+                    className="text-xs font-bold uppercase tracking-wider" style={{ color }} defaultSize="xs" />
                 </div>
                 <EditableText
                   value={ov[`q_${q.id}_required_thinking`] ?? q.requiredThinking}
@@ -57,7 +60,10 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
               <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-700">흔한 함정</span>
+                  <EditableText value={ov.deepdive_label_trap ?? "흔한 함정"}
+                    onChange={(v) => setText("deepdive_label_trap", v)}
+                    styleKey="deepdive_label_trap"
+                    className="text-xs font-bold uppercase tracking-wider text-amber-700" defaultSize="xs" />
                 </div>
                 <EditableText
                   value={ov[`q_${q.id}_likely_trap`] ?? q.likelyTrap}
@@ -70,7 +76,10 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
               <div className="rounded-xl bg-red-50 border border-red-200 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-red-500" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-red-600">학생 당황 원인</span>
+                  <EditableText value={ov.deepdive_label_panic ?? "학생 당황 원인"}
+                    onChange={(v) => setText("deepdive_label_panic", v)}
+                    styleKey="deepdive_label_panic"
+                    className="text-xs font-bold uppercase tracking-wider text-red-600" defaultSize="xs" />
                 </div>
                 <EditableText
                   value={ov[`q_${q.id}_student_panic_reason`] ?? q.studentPanicReason}
@@ -83,7 +92,10 @@ export default function KillerQuestionDeepDive({ analysis, onUpdate }: Props) {
               <div className="rounded-xl bg-blue-50 border border-blue-200 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="h-4 w-4 text-blue-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-700">대비 전략</span>
+                  <EditableText value={ov.deepdive_label_strategy ?? "대비 전략"}
+                    onChange={(v) => setText("deepdive_label_strategy", v)}
+                    styleKey="deepdive_label_strategy"
+                    className="text-xs font-bold uppercase tracking-wider text-blue-700" defaultSize="xs" />
                 </div>
                 <EditableText
                   value={ov[strategyKey] ?? `${q.requiredThinking}에 대한 집중 훈련이 필요합니다. 유사 유형 문제를 반복하여 사고 패턴을 체화하세요.`}

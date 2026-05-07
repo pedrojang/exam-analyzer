@@ -184,7 +184,7 @@ export default function ReportEditor({ analysis: initialAnalysis }: Props) {
     switch (section.type as SectionType) {
       case "hero": return <ReportHero analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} />;
       case "executive_summary": return <><SectionTitle title={section.title} /><ExecutiveSummaryCards analysis={analysis} onUpdate={setAnalysis} sectionConfig={sc} /></>;
-      case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} /></>;
+      case "unit_distribution": return <><SectionTitle title={section.title} /><UnitDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "type_distribution": return <><SectionTitle title={section.title} /><TypeScoreDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "difficulty_distribution": return <><SectionTitle title={section.title} /><DifficultyDistributionChart analysis={analysis} onUpdate={setAnalysis} /></>;
       case "exam_flow": return <><SectionTitle title={section.title} /><ExamFlowChart analysis={analysis} onUpdate={setAnalysis} /></>;
